@@ -18,12 +18,12 @@ description: Things Leon Fuessner has built — one line each.
      to return 200 unauthenticated. Nothing is made public to feed this page.
      An entry with no link is complete, not weaker — most of these have none.
 
-     DELIBERATELY NOT LISTED — Leon's call, not an agent's. Three private
+     DELIBERATELY NOT LISTED — Leon's call, not an agent's. Some private
      repositories look like they may be client or commercial work rather than
      personal projects, and publishing a description of someone else's product
-     is the owner's decision: winematch, winematch_website, kd-skatecat.
-     Nothing about them is described here for the same reason. If any of them
-     should appear, add the line yourself.
+     is the owner's decision. They are not named here either: this file is
+     public, so naming a private repo in a comment discloses that it exists.
+     If one of them should appear, add the line yourself.
 
      Also not listed, on purpose: everything from the employment history
      (STIHL, BMW, Deutsche Bahn, Joyn, Spontacts, myposter). That is work done
