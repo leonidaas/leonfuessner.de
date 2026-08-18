@@ -10,9 +10,25 @@ vendor/
 # inside it can be committed by accident). See README.md → "Drafts".
 _drafts/
 
-# Obsidian workspace state (this repo is opened as a publishing vault)
+# Obsidian. The vault CONFIG is committed on purpose (.obsidian/app.json,
+# core-plugins.json, templates.json) so a clone opens as a correctly set-up
+# publishing vault. What is ignored below is either per-session UI state that
+# churns on every launch, or third-party code that has no business in this
+# repo — community plugins are installed from Obsidian's own browser, never
+# vendored here. See WRITING.md.
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
+.obsidian/graph.json
+.obsidian/canvas.json
+.obsidian/backlink.json
+.obsidian/command-palette.json
+.obsidian/starred.json
+.obsidian/bookmarks.json
+.obsidian/cache
+.obsidian/plugins/
+.obsidian/themes/
+.obsidian/snippets/
+.trash/
 
 # macOS
 .DS_Store

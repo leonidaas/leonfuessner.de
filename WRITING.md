@@ -1,0 +1,406 @@
+# Writing
+
+How a post gets from a blank note in Obsidian to a URL on the site.
+
+This repo **is** the publishing vault — you open this directory in Obsidian as a
+second vault and write in it directly. There is no export step and no sync
+between this and the main vault (`~/Documents/Obsidian/LeonFuessner`); nothing
+here reads from there. See [`CONTEXT.md`](CONTEXT.md) for the vocabulary and
+[`docs/adr/0001-separate-publishing-vault.md`](docs/adr/0001-separate-publishing-vault.md)
+for why.
+
+Desktop only. Obsidian Sync is not used for this vault — **git is the sync
+mechanism**.
+
+---
+
+## One-time setup
+
+1. **Open the vault.** Obsidian → *Open another vault* → *Open folder as vault*
+   → pick this repository's directory. Obsidian finds the committed
+   `.obsidian/` config and comes up already configured (see
+   [Vault settings](#what-obsidian-is-configured-to-do-and-why)).
+
+2. **Create the drafts folder.**
+
+   ```bash
+   mkdir _drafts
+   ```
+
+   `_drafts/` is gitignored, so a fresh clone does not have it. Obsidian is
+   configured to put every new note there, and will complain if it is missing.
+
+3. **Install Obsidian Git.** GUI-only, one-time — see
+   [Obsidian Git](#obsidian-git) at the bottom.
+
+---
+
+## The loop
+
+### 1. Start a draft
+
+`Cmd-N` → the note lands in `_drafts/` (that is configured, not luck).
+
+**Name the note as the human title**, in prose, with spaces:
+`Why remote supervision is harder than it looks`. The template picks that up as
+the `title`, and the filename gets replaced with a slug at publish time anyway.
+
+Then insert the template: *Command palette* (`Cmd-P`) → **Templates: Insert
+template** → `post`. That writes:
+
+```yaml
+---
+title: "Why remote supervision is harder than it looks"
+date: 2026-08-18
+description: ""
+tags: []
+---
+```
+
+`date` is filled in by the Templates plugin at the moment you insert it, which
+is the *draft* date. If the draft sits for three weeks, fix `date` when you
+publish — the validator will catch you if you forget.
+
+> Worth binding a hotkey: *Settings → Hotkeys →* search `Insert template`. It
+> has no default. Not committed here because command IDs shift between Obsidian
+> versions and an unverified binding is dead config.
+
+Write. `_drafts/` never leaves the laptop, so nothing here is public yet.
+
+### 2. Publish it
+
+Rename the file into `_posts/` with a date prefix and a slug:
+
+```
+_drafts/Why remote supervision is harder than it looks.md
+        ↓
+_posts/2026-08-18-remote-supervision-is-harder-than-it-looks.md
+```
+
+Rules for the filename:
+
+- `YYYY-MM-DD-slug.md`. Jekyll ignores anything in `_posts/` that does not match.
+- The slug is lowercase, hyphens only. **It becomes the URL**: the post above
+  serves at `/blog/remote-supervision-is-harder-than-it-looks/`.
+- The date in the filename must equal the `date` in the frontmatter.
+
+Renaming inside Obsidian's file explorer is fine — it updates any links to the
+note for you.
+
+### 3. Check it
+
+```bash
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+
+ruby script/validate-posts.rb          # frontmatter check, no bundler needed
+bundle exec jekyll serve               # add --drafts to preview _drafts/ too
+```
+
+<http://localhost:4000/leonfuessner.de/> — note the path prefix.
+
+### 4. Ship it
+
+Commit and push — by hand in the terminal, or via Obsidian Git's
+*Commit-and-sync* command. Pushing to `main` runs
+`.github/workflows/deploy.yml`, which validates frontmatter, builds, renders
+`cv.pdf`, and deploys. A minute later it is live.
+
+The post appears in three places automatically: at its own URL, in the stream on
+`/`, and in `/feed.xml`.
+
+---
+
+## Frontmatter schema
+
+Every file in `_posts/` carries exactly this. Four required fields, no more.
+It is enforced by `script/validate-posts.rb` on every push.
+
+| Field | Type | Required | What it does |
+|---|---|---|---|
+| `title` | string | **yes** | The `<h1>` on the post, the `<title>` tag, `og:title`, the link text in the stream, and the entry title in the feed. |
+| `date` | date, `YYYY-MM-DD` | **yes** | The dateline on the post, the date in the stream, `article:published_time`, and feed ordering. **Must match the filename's date prefix.** |
+| `description` | string | **yes** | Two jobs: the `<meta name="description">` / `og:description` for the page, and the one-line blurb under the title in the stream on `/`. Without it the page falls back to the site-wide description and the stream entry is a bare title. One sentence. |
+| `tags` | list of strings | **yes** | The tag chips on the post and in the stream. Must be a YAML **list**, at least one entry, from [the tag set](#tags). |
+| `lang` | string | no | Overrides `<html lang>`. The site is English only; you will not need this. |
+
+### Not fields
+
+- **`layout`** — `_config.yml` applies `layout: post` to everything in `_posts/`
+  automatically. Do not write it. (If you do, it must say `post`; anything else
+  fails validation.)
+- **`reading_time`** — computed. `_layouts/post.html` counts the words in the
+  rendered body and divides by 220. A hand-written value would be a second,
+  lying source of truth, so the validator rejects the key outright.
+- **`published`, `categories`, `permalink`** — not used. One stream, one
+  permalink pattern (`/blog/:title/`), and unfinished writing lives in
+  `_drafts/` rather than behind a flag.
+
+### Example
+
+```yaml
+---
+title: "Why remote supervision is harder than it looks"
+date: 2026-08-18
+description: "Latency is the obvious problem with teleoperating a vehicle. It is not the one that bites."
+tags: [research, automated-driving]
+---
+```
+
+---
+
+## Tags
+
+Tags filter the stream. They are not a navigation hierarchy — a post belongs to
+the stream first and to its tags incidentally (`CONTEXT.md`).
+
+**The set:**
+
+| Tag | For |
+|---|---|
+| `research` | The academic side: papers, method, conferences, reading the literature. |
+| `automated-driving` | Automated and autonomous vehicles — remote operation, supervision, Autoware, the road-safety domain. |
+| `simulation` | Digital twins, AWSIM, Unity, sensor replay, VR/AR. |
+| `software-engineering` | The craft: architecture, refactoring, testing, languages, things that generalise past one project. |
+| `tools` | The setup around the work — editor, shell, CI, Obsidian, this site. |
+| `writing` | Writing, note-taking, and thinking about either. |
+| `personal` | Everything non-technical: moving countries, research life, whatever else. |
+
+**Conventions:**
+
+- **Lowercase, hyphenated.** `automated-driving`, never `Automated Driving` or
+  `automated_driving`. The validator enforces the shape.
+- **Reuse, don't invent.** A tag earns its place by being used repeatedly. A
+  tag used once is noise — it makes the tag list longer without making anything
+  easier to find.
+- **Adding one is a deliberate act.** If a post genuinely does not fit, add the
+  tag *to the table above* in the same commit as the post that needs it. The
+  list in this file is the whole set; there is nowhere else it is defined.
+- One or two tags per post is normal. Four is a sign the post is about too many
+  things.
+
+There is **no tag index page**, on purpose. That is deferred until the archive
+is big enough to justify one — right now it would be a page of seven links to
+lists of one.
+
+---
+
+## Images
+
+Attachments live under:
+
+```
+assets/img/posts/<post-slug>/
+```
+
+Obsidian is configured to drop pasted and dragged images into
+`assets/img/posts/` automatically. To file them per-post, drag the file into an
+`assets/img/posts/<post-slug>/` subfolder in Obsidian's file explorer —
+"Automatically update internal links" is on, so Obsidian rewrites the link in
+the post for you.
+
+Keep filenames lowercase with hyphens and **no spaces** (Obsidian would write
+them as `%20`, which works but reads badly in a diff).
+
+### The link Obsidian writes, and the one you need
+
+Obsidian is set to write **standard Markdown links with absolute vault paths**,
+so pasting an image gives you:
+
+```markdown
+![bars](/assets/img/posts/my-post/bars.png)
+```
+
+That path is correct in shape but **404s on the deployed site today**, for the
+same baseurl reason as every other internal link (below). Wrap it:
+
+```markdown
+![bars]({{ '/assets/img/posts/my-post/bars.png' | relative_url }})
+```
+
+Verified: the wrapped form serves `200`, the raw form serves `404`. The cost is
+that the wrapped form does not preview inside Obsidian — the image shows as
+broken there. Web correctness wins; the preview is a local inconvenience, and
+the phase-6 DNS cutover removes the conflict entirely (see below).
+
+---
+
+## Internal links in post bodies — read this
+
+Jekyll runs Liquid over post Markdown, and you must use it for every internal
+link. A plain Markdown link to a site path **404s on the deployed site**:
+
+```markdown
+[about](/about/)                                 ← 404 today
+[about]({{ '/about/' | relative_url }})          ← correct
+```
+
+**Why.** Until the DNS cutover the site is served from a GitHub Pages *project
+page* at `https://leonidaas.github.io/leonfuessner.de/`, so everything lives
+under a `/leonfuessner.de` path prefix. `/about/` resolves against
+`leonidaas.github.io`, not against the site, and misses. `relative_url` prepends
+`baseurl` from `_config.yml` and hits.
+
+It works locally at `http://localhost:4000/leonfuessner.de/` for the same
+reason — the local server uses the same `baseurl` — so a bare link is broken in
+both places, not just in production. If a link works in Obsidian's preview but
+nowhere else, this is why.
+
+**This stops mattering after phase 6.** At the DNS cutover `baseurl` becomes
+`""`, and a bare `/about/` will be correct. Until then, wrap everything.
+External links (`https://…`) are unaffected — write them normally.
+
+---
+
+## Drafts
+
+`_drafts/` is gitignored — the **whole** directory, with no negation pattern, so
+nothing inside it can be committed by accident. This repo is public and
+unfinished writing should not be.
+
+- A fresh clone has no `_drafts/`. Run `mkdir _drafts`.
+- **Drafts are not backed up by this repo.** They exist only on the machine they
+  were written on. That is the deliberate price of a public repo.
+- `bundle exec jekyll serve --drafts` renders them locally.
+
+Publishing a draft = move it to `_posts/` and give the filename a date.
+
+---
+
+## Validation
+
+`script/validate-posts.rb` runs in CI **before** the Jekyll build, and fails the
+deploy on a bad post. Run it yourself any time:
+
+```bash
+ruby script/validate-posts.rb
+```
+
+Stdlib Ruby only — no bundler, no gem, nothing for CI to install.
+
+It exists because **a malformed post does not crash Jekyll**. It renders, wrong
+and silently: a missing `description` costs the post its meta description and
+its blurb in the stream; `tags: research` written as a string makes the layout
+iterate over the characters `r`, `e`, `s`…; a `date` that disagrees with the
+filename puts the post at the wrong point in the archive. The build stays green
+and the page is wrong. This turns all of that into a loud failure.
+
+What it checks, per file in `_posts/`:
+
+- filename is `YYYY-MM-DD-slug.md`
+- frontmatter exists, is closed, and parses as YAML
+- `title`, `date`, `description`, `tags` are all present
+- `title` and `description` are non-empty strings
+- `date` parses **and equals the filename's date**
+- `tags` is a non-empty list, every tag lowercase-and-hyphens
+- `reading_time` is absent; `layout`, if present, is `post`
+- warns (does not fail) on unrecognised keys and non-slug filenames
+
+A failure looks like this:
+
+```
+Post frontmatter validation FAILED — 3 problem(s):
+
+  2026-08-17-a-post.md: 'description' must be a non-empty string — it is the meta description and the blurb in the stream
+  2026-08-17-a-post.md: 'date' is 2026-08-15 but the filename says 2026-08-17 — they must agree
+  2026-08-17-a-post.md: 'tags' must be a YAML list, e.g. tags: [research, simulation] — got String "research"
+
+The schema is documented in WRITING.md. Fix the file(s) above and push again.
+```
+
+**An empty `_posts/` passes.** The site is expected to stand with no posts at
+all; do not "fix" that.
+
+---
+
+## What Obsidian is configured to do, and why
+
+`.obsidian/app.json`, `core-plugins.json` and `templates.json` are **committed**
+so this repo opens as a correctly-configured vault with no manual fiddling. The
+settings that are load-bearing:
+
+| Setting (`app.json`) | Value | Why |
+|---|---|---|
+| `useMarkdownLinks` | `true` | **The important one.** Obsidian writes `[x](y)`, not `[[x]]`. Jekyll never has to understand wikilinks, so there is no link-resolution plugin to build, own or debug. Do not turn this off. |
+| `newLinkFormat` | `absolute` | Paths are written from the vault root (`/assets/img/…`). Obsidian's *relative* mode would write `../assets/…`, which is relative to `_posts/` in the source but gets resolved against `/blog/<slug>/` in the browser — always wrong. Absolute is wrong only by the `baseurl` prefix, which `relative_url` fixes, and becomes correct verbatim after phase 6. |
+| `attachmentFolderPath` | `assets/img/posts` | Pasted images land in the images tree instead of the vault root. |
+| `alwaysUpdateLinks` | `true` | Moving an image into its per-post subfolder rewrites the link in the post. |
+| `newFileLocation` / `newFileFolderPath` | `folder` / `_drafts` | **A safety property.** New notes default to the gitignored folder, so a half-written thought cannot land somewhere publishable by default. |
+| `spellcheckLanguages` | `en-GB` | The site is English only, and the existing prose is British. |
+| `readableLineLength`, `livePreview`, `foldHeading` | on | Prose defaults rather than code defaults. |
+| `defaultViewMode` | `source` | You are editing Markdown that Jekyll will process, including Liquid tags that reading view cannot render. |
+
+`core-plugins.json` enables **Templates** (pointed at `_templates/` by
+`templates.json`), plus search, outline, tag pane, properties and word count.
+Graph, backlinks, canvas, daily notes and Zettelkasten prefixing are **off** —
+this is a publishing vault holding a flat pile of posts, not a Zettelkasten;
+that is what the main vault is for. **Sync and Publish are explicitly off**: git
+is the sync mechanism for this vault.
+
+`.obsidian/` is in `_config.yml`'s `exclude` list, so none of it is ever served.
+
+**Not committed** (see `.gitignore`): `workspace.json` and friends, which churn
+on every session; and `.obsidian/plugins/`, `themes/`, `snippets/` — third-party
+code is installed from Obsidian's own browser, never vendored into this repo.
+The consequence is that Obsidian Git's settings are not shared by a clone, which
+is fine for a desktop-only, one-machine setup.
+
+Changing a setting in Obsidian's GUI rewrites these files, so `git status` will
+sometimes show config churn. Commit it if you meant it, discard it if you did
+not.
+
+---
+
+## Obsidian Git
+
+Installing a community plugin is a GUI action; it cannot be scripted and the
+plugin is deliberately not vendored into this repo. Do this once, by hand.
+
+### Install
+
+1. *Settings → Community plugins.*
+2. If restricted mode is on, **Turn on community plugins**.
+3. **Browse**, search **Obsidian Git** (by Vinzent), **Install**, then
+   **Enable**.
+
+The desktop version shells out to your system `git`, so it uses the SSH key you
+already push with. Nothing extra to authenticate.
+
+### Settings
+
+*Settings → Community plugins → Obsidian Git → Options.* Recent versions renamed
+"backup" to "commit-and-sync"; both spellings mean the same thing.
+
+| Setting | Set to | Why |
+|---|---|---|
+| **Split automatic commit-and-sync** *(auto commit-and-sync interval)* | `0` — off | See below. |
+| **Auto commit-and-sync after stopping file edits** | off | See below. |
+| **Auto pull interval** | `0` — off | Nothing else writes to this repo. Pull when you actually need to. |
+| **Pull on startup** | on | Cheap, and keeps a second machine honest. |
+| **Push on commit-and-sync** | on | When you *do* commit deliberately, you meant to publish. |
+| **Commit message** | `post: {{date}}` or leave the default | Only used for plugin-made commits. |
+| **Disable notifications** | off | You want to see push failures. |
+
+### Turn auto-commit off. Seriously.
+
+**This repo is public and every push deploys.** Auto-commit-and-sync means a
+timer decides when your writing goes on the internet. A half-finished paragraph,
+a sentence you were still arguing with, a name you had not decided to use in
+public yet — all published, within minutes, with no moment where you chose to
+publish it. Reverting does not un-publish: the commit is in a public history and
+the page was live.
+
+Drafts in `_drafts/` are gitignored and so are safe from this. Everything else
+is not. Publishing should be an act, not a timeout.
+
+**The workflow:** write freely; when a post is finished, run *Obsidian Git:
+Commit-and-sync* from the command palette (`Cmd-P`), or use the **Source
+control** view in the left sidebar to review the diff, stage, commit and push.
+Or just use the terminal. Either way, the decision to publish is yours and
+explicit.
+
+### Useful commands (`Cmd-P`)
+
+- `Obsidian Git: Open source control view` — the diff, before you commit
+- `Obsidian Git: Commit-and-sync` — commit everything staged and push
+- `Obsidian Git: Pull`
+- `Obsidian Git: Open file on GitHub` — handy for checking what is actually public

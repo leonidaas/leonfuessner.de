@@ -51,7 +51,14 @@ exclude:
   - Gemfile.lock
   - README.md
   - CONTEXT.md
+  - WRITING.md
   - docs
+  - script
   - vendor
   - .jekyll-cache
+  # The publishing vault's own furniture. `.obsidian` holds the vault config;
+  # `_templates` holds the post template. Jekyll already skips any directory
+  # whose name starts with an underscore, so `_templates` is belt-and-braces —
+  # it is listed to say out loud that it must never be published.
   - .obsidian
+  - _templates

@@ -1,0 +1,29 @@
+{
+  "useMarkdownLinks": true,
+  "newLinkFormat": "absolute",
+  "alwaysUpdateLinks": true,
+  "attachmentFolderPath": "assets/img/posts",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "_drafts",
+  "showUnsupportedFiles": false,
+  "trashOption": "local",
+  "promptDelete": true,
+  "readableLineLength": true,
+  "showLineNumber": false,
+  "strictLineBreaks": false,
+  "livePreview": true,
+  "propertiesInDocument": "visible",
+  "foldHeading": true,
+  "foldIndent": true,
+  "autoPairBrackets": true,
+  "autoPairMarkdown": true,
+  "smartIndentList": true,
+  "spellcheck": true,
+  "spellcheckLanguages": [
+    "en-GB"
+  ],
+  "useTab": false,
+  "tabSize": 2,
+  "vimMode": false,
+  "defaultViewMode": "source"
+}

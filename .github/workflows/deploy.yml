@@ -27,6 +27,14 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
 
+      # Runs BEFORE the build, on purpose. A malformed post does not crash
+      # Jekyll — it renders wrong and silently (missing description, a date
+      # that disagrees with the filename, `tags:` written as a string). This
+      # step turns that into a loud, early failure with a per-file message.
+      # Stdlib Ruby only; nothing extra to install. An empty _posts/ passes.
+      - name: Validate post frontmatter
+        run: ruby script/validate-posts.rb
+
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5

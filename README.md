@@ -8,6 +8,10 @@ and write posts directly in it. See [`CONTEXT.md`](CONTEXT.md) for the
 vocabulary and [`docs/adr/0001-separate-publishing-vault.md`](docs/adr/0001-separate-publishing-vault.md)
 for why it works that way.
 
+**If you are here to write, read [`WRITING.md`](WRITING.md).** It covers the
+draft-to-live loop, the frontmatter schema, the tag set, the images convention,
+and the Obsidian Git setup.
+
 ## Layout
 
 ```
@@ -18,33 +22,44 @@ _layouts/
   page.html                 a standalone page
 _posts/                     published posts, one Markdown file each
 _drafts/                    unfinished writing — GITIGNORED, never pushed
+_templates/                 Obsidian post template (not published)
 index.html                  the stream (all posts, reverse chronological)  → /
 now.md                      → /now/
 about.md                    → /about/
 projects.md                 → /projects/
 cv.md                       → /cv/
 assets/css|js|img/          static assets
+assets/img/posts/<slug>/    images belonging to one post
+script/validate-posts.rb    frontmatter check, run by CI before the build
+.obsidian/                  committed vault config (not published)
 .github/workflows/deploy.yml  build + deploy
 docs/adr/                   architecture decision records
 CONTEXT.md                  glossary
+WRITING.md                  how to write and publish a post
 ```
 
 ## Writing a post
 
-Create `_posts/YYYY-MM-DD-some-slug.md`:
+Full guide: [`WRITING.md`](WRITING.md). The short version — create
+`_posts/YYYY-MM-DD-some-slug.md`:
 
 ```markdown
 ---
 title: "Your title"
 date: 2026-08-18
+description: "One line. Meta description, and the blurb in the stream."
 tags: [writing, research]
-description: "One line, used for the page meta description."
 ---
 
 Your Markdown here.
 ```
 
-`layout: post` is applied automatically, so you can leave it out.
+All four fields are required and are checked by `script/validate-posts.rb`,
+which CI runs before the build — a malformed post fails the deploy rather than
+rendering wrong in silence. Run it locally with `ruby script/validate-posts.rb`.
+
+`layout: post` is applied automatically, so leave it out. Reading time is
+computed from the word count, so there is no `reading_time` field.
 
 Commit and push (Obsidian Git plugin, or `git push`). It appears at
 `/blog/some-slug/`, in the stream on `/`, and in `/feed.xml`.
@@ -63,6 +78,12 @@ Consequences worth knowing:
 - `bundle exec jekyll serve --drafts` renders them locally.
 
 Publishing a draft = move it to `_posts/` and give the filename a date.
+
+### Images
+
+Images for a post live in `assets/img/posts/<post-slug>/`, and Obsidian is
+configured to paste them there. Reference them through `relative_url` — see
+[`WRITING.md`](WRITING.md#images) and the baseurl section below.
 
 ## Previewing locally
 
