@@ -5,11 +5,28 @@ description: >-
 
 author:
   name: Leon Fuessner
-  # Ported verbatim from the cv_2025 source; it is the contact address the
-  # CV already carried. Rendered on /cv/ only.
-  email: leon.fuessner@hotmail.de
+  # NO `email:` KEY, DELIBERATELY. The address is off the site entirely — off
+  # /cv/, and out of the feed (jekyll-feed emits <email> under <author> if it
+  # finds one here). Contact goes through the social links below instead.
+  # Do not add it back.
 
+# ---------------------------------------------------------------------------
+# SOCIAL LINKS
+# Rendered by the footer (_layouts/default.html) and the /cv/ contact rail
+# (cv.md). Both read these keys, so a link added here appears in both places.
+# ---------------------------------------------------------------------------
 github_username: leonidaas
+linkedin_url: https://www.linkedin.com/in/leon-fuessner-bab212170
+
+# >>> X / TWITTER GOES HERE. <<<
+# Not set, because the handle has not been confirmed by the site owner, and a
+# wrong handle points visitors at a stranger's account. Do not guess one.
+# To add it: uncomment the line below and replace the placeholder with the
+# real handle, bare, without the leading "@". Nothing else needs changing —
+# the footer and the /cv/ contact rail both render the link the moment this
+# key exists.
+#
+# twitter_username: REPLACE-WITH-HANDLE-NO-AT-SIGN
 
 # ---------------------------------------------------------------------------
 # BASEURL — READ BEFORE CHANGING

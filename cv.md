@@ -20,8 +20,22 @@ description: >-
 <ul class="cv-contact">
   <li>Researcher · Systems Engineer · Software Developer</li>
   <li>Brisbane, Australia</li>
-  <li><a href="mailto:{{ site.author.email }}">{{ site.author.email }}</a></li>
+  <!-- No email address, on purpose: it is not on this site anywhere, and
+       `_config.yml` no longer carries one. Contact runs through these links.
+
+       X / TWITTER: absent because the handle is not known yet. Set
+       `twitter_username` in _config.yml (the block is marked there) and the
+       entry below appears on the page and in cv.pdf. Never guess a handle. -->
   <li><a href="https://github.com/{{ site.github_username }}">github.com/{{ site.github_username }}</a></li>
+  {%- if site.linkedin_url %}
+  <li><a href="{{ site.linkedin_url }}">{{ site.linkedin_url | remove: 'https://www.' | remove: 'https://' }}</a></li>
+  {%- endif %}
+  {%- if site.twitter_username %}
+  <li><a href="https://x.com/{{ site.twitter_username }}">x.com/{{ site.twitter_username }}</a></li>
+  {%- endif %}
+  <!-- Screen-only, like the PDF link: in print the rail suppresses href
+       expansion, so a bare "RSS" on paper would say nothing. -->
+  <li class="no-print"><a href="{{ '/feed.xml' | relative_url }}">RSS</a></li>
   <li class="no-print"><a href="{{ '/cv.pdf' | relative_url }}">Download PDF</a></li>
 </ul>
 
