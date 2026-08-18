@@ -1,98 +1,1243 @@
-/* ---------------------------------------------------------------------------
-   PHASE 2 OWNS THIS FILE.
+/* ===========================================================================
+   leonfuessner.de — design system (phase 2)
 
-   What is here is the bare minimum to keep the skeleton from looking broken:
-   a readable measure, a legible stack, and some spacing. No palette, no type
-   scale, no design decisions. Phase 2 replaces all of it with the Flexoki
-   palette, JetBrains Mono for headings/nav/metadata, and a serif body face.
-   Body text is never monospace.
+   One stylesheet. Plain CSS, no build step, no framework.
+   Reading is the product: a serif body face at a ~65ch measure, monospace
+   only for headings, navigation, metadata and code.
+
+   Contents
+     01  Fonts (self-hosted, no third-party requests)
+     02  Palette — Flexoki tokens
+     03  Semantic tokens, light + dark
+     04  Reset and base
+     05  Layout: skip link, header, nav, main, footer
+     06  Prose: headings, text, links, lists, quotes, rules
+     07  Prose: media, tables, footnotes
+     08  Code and Rouge syntax highlighting
+     09  Components: stream, post meta, tags, projects
+     10  CV hooks (content authored in phase 3)
+     11  Focus, motion, forced colors
+     12  Print
+
+   RULES THIS FILE ENFORCES
+     - Body text is never monospace.
+     - Every text/background pair used here meets WCAG AA (>= 4.5:1) in both
+       themes; ratios are noted next to the tokens.
+     - Light/dark is `prefers-color-scheme` only. There is no toggle and no
+       persisted state, on purpose.
+     - No animation. `prefers-reduced-motion` is honoured regardless.
+   =========================================================================== */
+
+
+/* ---------------------------------------------------------------------------
+   01  FONTS
+
+   Self-hosted deliberately: the production domain is a German .de and
+   LG Muenchen I, 3 O 17493/20 (2022) held that pulling fonts from Google's CDN
+   transmits visitor IPs in breach of the GDPR. Nothing here leaves the origin.
+
+   JetBrains Mono 2.304 — SIL OFL 1.1, no reserved font name.
+     https://github.com/JetBrains/JetBrainsMono (release v2.304, webfonts/)
+     Subset to Latin + Latin Extended with pyftsubset (92 KB -> 28 KB/face).
+     Licence: assets/fonts/LICENSE-JetBrainsMono-OFL.txt
+
+   Source Serif 4.005R — SIL OFL 1.1, reserved font name 'Source'.
+     https://github.com/adobe-fonts/source-serif (release 4.005R, WOFF2/TTF/)
+     Shipped BYTE-FOR-BYTE UNMODIFIED (files renamed only). The OFL treats a
+     subset as a Modified Version, and a Modified Version may not carry the
+     reserved name — so these faces are not subset.
+     Licence: assets/fonts/LICENSE-SourceSerif4-OFL.md
+
+   Paths are relative, so they survive the phase-6 baseurl cutover untouched.
    --------------------------------------------------------------------------- */
 
-body {
-  margin: 0 auto;
-  padding: 2rem 1.25rem 4rem;
-  max-width: 42rem;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.0625rem;
-  line-height: 1.6;
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4-bolditalic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* ---------------------------------------------------------------------------
+   02  PALETTE — Flexoki
+
+   Values copied verbatim from the reference stylesheet in the Flexoki repo:
+   https://github.com/kepano/flexoki/blob/main/css/flexoki.css
+   Documentation and semantic mapping: https://stephango.com/flexoki
+   Flexoki is MIT licensed, (c) Steph Ango.
+
+   Only the values this site actually uses are listed. Do not add more without
+   checking the contrast of the pair you intend to use it in.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --flexoki-black:        #100F0F;
+  --flexoki-paper:        #FFFCF0;
+
+  --flexoki-50:           #F2F0E5;
+  --flexoki-100:          #E6E4D9;
+  --flexoki-150:          #DAD8CE;
+  --flexoki-200:          #CECDC3;
+  --flexoki-400:          #9F9D96;
+  --flexoki-500:          #878580;
+  --flexoki-700:          #575653;
+  --flexoki-800:          #403E3C;
+  --flexoki-850:          #343331;
+  --flexoki-900:          #282726;
+  --flexoki-950:          #1C1B1A;
+
+  --flexoki-red-300:      #E8705F;
+  --flexoki-red-600:      #AF3029;
+
+  --flexoki-orange-400:   #DA702C;
+  --flexoki-orange-700:   #9D4310;
+
+  --flexoki-yellow-400:   #D0A215;
+  --flexoki-yellow-800:   #664D01;
+
+  --flexoki-green-400:    #879A39;
+  --flexoki-green-700:    #536907;
+
+  --flexoki-cyan-400:     #3AA99F;
+  --flexoki-cyan-700:     #1C6C66;
+
+  --flexoki-blue-50:      #E1ECEB;
+  --flexoki-blue-200:     #92BFDB;
+  --flexoki-blue-300:     #66A0C8;
+  --flexoki-blue-600:     #205EA6;
+  --flexoki-blue-700:     #1A4F8C;
+  --flexoki-blue-850:     #133051;
+
+  --flexoki-purple-400:   #8B7EC8;
+  --flexoki-purple-600:   #5E409D;
+
+  --flexoki-magenta-400:  #CE5D97;
+  --flexoki-magenta-600:  #A02F6F;
+}
+
+
+/* ---------------------------------------------------------------------------
+   03  SEMANTIC TOKENS
+
+   Flexoki's own light/dark mapping, with two deliberate deviations, both of
+   them for contrast. They are marked DEVIATION below.
+
+   Contrast ratios are WCAG 2.1 relative-luminance ratios against the surface
+   named in the comment. AA body text needs 4.5:1; AA large text and non-text
+   UI need 3:1.
+   --------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --bg:        var(--flexoki-paper);  /* #FFFCF0 page                        */
+  --bg-2:      var(--flexoki-50);     /* #F2F0E5 code, tables, marks         */
+
+  /* Text */
+  --tx:        var(--flexoki-black);  /* #100F0F  18.62:1 on bg, 16.74 on bg-2 */
+  --tx-2:      var(--flexoki-700);    /* #575653   7.14:1 on bg,  6.42 on bg-2 */
+  /* DEVIATION 1: Flexoki maps light tx-2 to base-600 (#6F6E69). That is
+     4.47:1 on bg-2 — a hair under AA — and muted text does land on bg-2 here
+     (code comments, table rules). base-700 is used instead. Flexoki's tx-3
+     (base-300, 2.0:1) is not exposed at all: nothing readable may use it. */
+
+  /* Borders and rules — decoration, so 1.4.11's 3:1 does not apply */
+  --ui:        var(--flexoki-100);    /* #E6E4D9 hairlines                   */
+  --ui-2:      var(--flexoki-150);    /* #DAD8CE stronger rules              */
+  --ui-3:      var(--flexoki-200);    /* #CECDC3 quote bar, active borders   */
+
+  /* Accent — links, focus ring, current nav item.
+     DEVIATION 2: Flexoki assigns cyan to links, but cyan-600 is 4.43:1 on
+     paper and fails AA. blue-600 is the nearest accent that passes on both
+     surfaces, so links are blue. */
+  --accent:    var(--flexoki-blue-600); /* #205EA6  6.36:1 on bg, 5.72 on bg-2 */
+  --accent-2:  var(--flexoki-blue-700); /* #1A4F8C  8.04:1 on bg — hover       */
+  --accent-bg: var(--flexoki-blue-50);  /* #E1ECEB selection / target wash     */
+
+  /* Rouge syntax — every one of these is >= 4.5:1 on --bg-2 (#F2F0E5) */
+  --syn-comment: var(--flexoki-700);         /* 6.42 */
+  --syn-punct:   var(--flexoki-700);         /* 6.42 */
+  --syn-keyword: var(--flexoki-green-700);   /* 5.42 */
+  --syn-string:  var(--flexoki-cyan-700);    /* 5.43 */
+  --syn-func:    var(--flexoki-orange-700);  /* 5.66 */
+  --syn-const:   var(--flexoki-yellow-800);  /* 6.99 */
+  --syn-var:     var(--flexoki-blue-600);    /* 5.72 */
+  --syn-num:     var(--flexoki-purple-600);  /* 6.81 */
+  --syn-lang:    var(--flexoki-magenta-600); /* 5.87 */
+  --syn-error:   var(--flexoki-red-600);     /* 5.61 */
+
+  /* Type */
+  --font-body: "Source Serif 4", "Iowan Old Style", Charter,
+               "Bitstream Charter", "Palatino Linotype", Palatino, Georgia,
+               "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+               Menlo, Consolas, "Liberation Mono", monospace;
+
+  --fs-body:   1.125rem;   /* 18px */
+  --fs-small:  0.875rem;   /* 14px — metadata */
+  --fs-tiny:   0.8125rem;  /* 13px — nav, footer, tags */
+  --fs-h1:     1.75rem;
+  --fs-h2:     1.375rem;
+  --fs-h3:     1.125rem;
+  --fs-h4:     1rem;
+
+  --lh-body:   1.7;
+  --lh-tight:  1.3;
+
+  /* Rhythm and measure */
+  --measure:   65ch;
+  --gutter:    clamp(1.25rem, 5vw, 2rem);
+  --space:     1.5rem;
+  --radius:    3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --bg:      var(--flexoki-black);   /* #100F0F */
+    --bg-2:    var(--flexoki-950);     /* #1C1B1A */
+
+    --tx:      var(--flexoki-200);     /* #CECDC3  11.98:1 on bg, 10.77 on bg-2 */
+    --tx-2:    var(--flexoki-500);     /* #878580   5.19:1 on bg,  4.67 on bg-2 */
+
+    --ui:      var(--flexoki-900);     /* #282726 */
+    --ui-2:    var(--flexoki-850);     /* #343331 */
+    --ui-3:    var(--flexoki-800);     /* #403E3C */
+
+    /* blue-400 is only 4.37:1 on bg-2; blue-300 clears AA on both surfaces */
+    --accent:    var(--flexoki-blue-300); /* #66A0C8  6.77:1 on bg, 6.08 on bg-2 */
+    --accent-2:  var(--flexoki-blue-200); /* #92BFDB  9.75:1 on bg — hover       */
+    --accent-bg: var(--flexoki-blue-850); /* #133051                             */
+
+    /* All >= 4.5:1 on --bg-2 (#1C1B1A) */
+    --syn-comment: var(--flexoki-500);         /* 4.67 */
+    --syn-punct:   var(--flexoki-400);         /* 6.34 */
+    --syn-keyword: var(--flexoki-green-400);   /* 5.50 */
+    --syn-string:  var(--flexoki-cyan-400);    /* 6.02 */
+    --syn-func:    var(--flexoki-orange-400);  /* 5.19 */
+    --syn-const:   var(--flexoki-yellow-400);  /* 7.26 */
+    --syn-var:     var(--flexoki-blue-300);    /* 6.08 */
+    --syn-num:     var(--flexoki-purple-400);  /* 4.85 */
+    --syn-lang:    var(--flexoki-magenta-400); /* 4.62 */
+    --syn-error:   var(--flexoki-red-300);     /* 5.66 */
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   04  RESET AND BASE
+   --------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  -moz-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 2rem;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--tx);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-synthesis-weight: none;
+  /* Nothing may push the viewport sideways. */
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 30rem) {
+  body { font-size: 1.0625rem; }
+}
+
+::selection {
+  background-color: var(--accent-bg);
+  color: var(--tx);
+}
+
+:is(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, blockquote, pre, figure, table) {
+  margin-block: 0;
+}
+
+/* Shared column. Header, main and footer sit on the same measure so the left
+   edge is one unbroken line down the page. */
+.site-head,
+main,
+.site-foot {
+  width: min(var(--measure), 100% - (2 * var(--gutter)));
+  margin-inline: auto;
+}
+
+
+/* ---------------------------------------------------------------------------
+   05  LAYOUT
+   --------------------------------------------------------------------------- */
 
 .skip-link {
   position: absolute;
-  left: -9999px;
-}
-.skip-link:focus {
-  position: static;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  /* Out of view but focusable, and it creates no scroll container. */
+  transform: translateY(-120%);
+  padding: 0.5rem 1rem;
+  background-color: var(--bg);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 0 0 var(--radius) 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  text-decoration: none;
 }
 
-.site-head,
-.site-foot {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.875rem;
+.skip-link:focus {
+  transform: translateY(0);
 }
+
+/* Header ------------------------------------------------------------------ */
 
 .site-head {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 1rem;
   align-items: baseline;
   justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-top: 2.5rem;
   margin-bottom: 3rem;
 }
 
-.site-nav a {
-  margin-right: 0.75rem;
+.site-mark {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--tx);
+  text-decoration: none;
 }
 
+.site-mark:hover,
+.site-mark:focus-visible {
+  color: var(--accent);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+}
+
+.site-nav a {
+  color: var(--tx-2);
+  text-decoration: none;
+  padding-block: 0.15rem;
+  border-bottom: 1px solid transparent;
+}
+
+.site-nav a:hover {
+  color: var(--tx);
+  border-bottom-color: var(--ui-3);
+}
+
+.site-nav a[aria-current="page"] {
+  color: var(--tx);
+  border-bottom-color: var(--accent);
+}
+
+/* Main -------------------------------------------------------------------- */
+
+main {
+  display: block;
+  padding-bottom: 4rem;
+}
+
+/* Footer ------------------------------------------------------------------ */
+
 .site-foot {
-  margin-top: 4rem;
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+  border-top: 1px solid var(--ui);
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  color: var(--tx-2);
+}
+
+.site-foot p { margin: 0; }
+.site-foot p + p { margin-top: 0.6rem; }
+
+.site-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
 }
 
 .site-foot a {
-  margin-right: 0.75rem;
+  color: var(--tx-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ui-2);
 }
 
-h1,
-h2,
-h3 {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  line-height: 1.25;
+.site-foot a:hover {
+  color: var(--accent);
+  border-bottom-color: currentColor;
 }
 
-.post-meta,
-.page-meta,
-.stream,
-.tag {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.875rem;
+
+/* ---------------------------------------------------------------------------
+   06  PROSE — headings, text, links, lists, quotes, rules
+
+   `.prose` wraps anything written in Markdown. Layout chrome must not inherit
+   these rules, which is why the vertical rhythm lives here and not on bare
+   element selectors.
+   --------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  color: var(--tx);
+  text-wrap: balance;
 }
 
-.stream {
-  list-style: none;
-  padding: 0;
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); }
+h5, h6 {
+  font-size: var(--fs-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.stream-item {
-  margin-bottom: 0.75rem;
+.prose > * + * { margin-top: var(--space); }
+
+.prose :is(h2, h3, h4, h5, h6) { margin-top: 2.5rem; }
+.prose :is(h2, h3, h4, h5, h6) + * { margin-top: 0.75rem; }
+
+.prose p { text-wrap: pretty; }
+
+/* Heading anchors, if phase 5 ever wants them. */
+.prose :is(h2, h3, h4) > .anchor {
+  margin-left: 0.35em;
+  color: var(--tx-2);
+  text-decoration: none;
+  opacity: 0;
+}
+.prose :is(h2, h3, h4):hover > .anchor,
+.prose .anchor:focus-visible { opacity: 1; }
+
+/* Links ------------------------------------------------------------------- */
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
 }
 
-.stream-item time {
-  margin-right: 0.75rem;
+a:hover {
+  color: var(--accent-2);
+  text-decoration-thickness: 2px;
 }
 
-.tag::before {
-  content: "#";
+.prose a {
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+.prose a:hover {
+  text-decoration-color: currentColor;
 }
 
-.tag + .tag {
-  margin-left: 0.5rem;
+/* Lists ------------------------------------------------------------------- */
+
+.prose :is(ul, ol) { padding-left: 1.5rem; }
+
+.prose li + li { margin-top: 0.4rem; }
+
+.prose li::marker { color: var(--tx-2); }
+
+.prose ol > li::marker {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
 }
 
-img {
+.prose :is(ul, ol) :is(ul, ol) { margin-top: 0.4rem; }
+
+.prose dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
+.prose dd {
+  margin: 0.25rem 0 0;
+  padding-left: 1.5rem;
+}
+.prose dd + dt { margin-top: 1rem; }
+
+/* Quotes ------------------------------------------------------------------ */
+
+.prose blockquote {
+  padding: 0.1rem 0 0.1rem 1.25rem;
+  border-left: 2px solid var(--ui-3);
+  color: var(--tx);
+}
+
+.prose blockquote > * + * { margin-top: 0.75rem; }
+
+.prose blockquote cite,
+.prose blockquote footer {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-style: normal;
+  color: var(--tx-2);
+}
+
+.prose blockquote cite::before,
+.prose blockquote footer::before { content: "\2014\00a0"; }
+
+/* Rules and inline marks -------------------------------------------------- */
+
+.prose hr {
+  height: 0;
+  margin-block: 3rem;
+  border: 0;
+  border-top: 1px solid var(--ui-2);
+}
+
+.prose :is(strong, b) { font-weight: 700; }
+.prose :is(em, i)     { font-style: italic; }
+.prose small          { font-size: var(--fs-small); color: var(--tx-2); }
+
+.prose mark {
+  background-color: var(--accent-bg);
+  color: var(--tx);
+  padding: 0.05em 0.15em;
+}
+
+.prose abbr[title] {
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: help;
+}
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--ui-3);
+  border-bottom-width: 2px;
+  border-radius: var(--radius);
+  background-color: var(--bg-2);
+}
+
+
+/* ---------------------------------------------------------------------------
+   07  PROSE — media, tables, footnotes
+   --------------------------------------------------------------------------- */
+
+img, svg, video {
   max-width: 100%;
   height: auto;
 }
 
-pre {
+.prose img {
+  display: block;
+  border-radius: var(--radius);
+}
+
+.prose figure { margin-inline: 0; }
+
+.prose figcaption {
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--tx-2);
+}
+
+/* Tables.
+   Cells wrap rather than overflow, so a table can never widen the page and no
+   `display: block` hack is needed (which would cost the table its semantics).
+   `.table-wrap` is there if a horizontally scrolling table is genuinely wanted
+   instead: wrap the table in <div class="table-wrap" tabindex="0"> by hand. */
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.prose :is(th, td) {
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--ui);
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.prose th {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--ui-3);
+}
+
+.prose tbody tr:last-child :is(th, td) { border-bottom: 0; }
+
+.prose caption {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  color: var(--tx-2);
+  text-align: left;
+}
+
+.table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-wrap > table { min-width: 32rem; }
+
+/* Footnotes (kramdown output) --------------------------------------------- */
+
+.prose sup[id^="fnref"] {
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+  line-height: 0;
+}
+
+.prose a.footnote {
+  text-decoration: none;
+  padding-inline: 0.1em;
+}
+
+.prose .footnotes {
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ui-2);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--tx-2);
+}
+
+.prose .footnotes ol { padding-left: 1.25rem; }
+.prose .footnotes li { margin-top: 0.5rem; }
+.prose .footnotes li::marker { font-family: var(--font-mono); }
+.prose .footnotes p { margin: 0; }
+.prose .footnotes p + p { margin-top: 0.5rem; }
+
+.prose a.reversefootnote {
+  margin-left: 0.35em;
+  text-decoration: none;
+}
+
+/* The jumped-to footnote is marked, without motion. */
+.prose .footnotes li:target {
+  background-color: var(--accent-bg);
+  outline: 0.4rem solid var(--accent-bg);
+  border-radius: 1px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   08  CODE AND ROUGE SYNTAX HIGHLIGHTING
+
+   kramdown + rouge emits:
+     block:  <div class="language-x highlighter-rouge">
+               <div class="highlight"><pre class="highlight"><code>...
+     inline: <code class="highlighter-rouge">...
+
+   Token colours come from the --syn-* tokens in section 03. Each one is
+   checked against --bg-2, the only surface code ever sits on.
+   --------------------------------------------------------------------------- */
+
+code, pre, samp, var {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+/* Inline code — never inside a <pre>. */
+:not(pre) > code {
+  font-size: 0.85em;
+  padding: 0.15em 0.35em;
+  background-color: var(--bg-2);
+  border: 1px solid var(--ui);
+  border-radius: var(--radius);
+  overflow-wrap: anywhere;
+}
+
+.prose a > code { color: inherit; }
+
+/* Block code. */
+.prose :is(pre, .highlighter-rouge, .highlight) { margin-block: 0; }
+
+.prose pre {
+  padding: 1rem 1.1rem;
+  background-color: var(--bg-2);
+  border: 1px solid var(--ui);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  tab-size: 2;
+  color: var(--tx);
+}
+
+.prose pre code {
+  padding: 0;
+  background: none;
+  border: 0;
+  font-size: inherit;
+  overflow-wrap: normal;
+  white-space: pre;
+}
+
+/* Rouge line-number tables. */
+.prose .rouge-table {
+  width: auto;
+  border-collapse: collapse;
+  font-size: inherit;
+}
+.prose .rouge-table :is(td, th) {
+  padding: 0;
+  border: 0;
+  overflow-wrap: normal;
+}
+.prose .rouge-table .gutter,
+.prose .lineno {
+  color: var(--tx-2);
+  padding-right: 1rem;
+  border-right: 1px solid var(--ui-2);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.prose .rouge-table .code { padding-left: 1rem; }
+
+/* Rouge tokens ------------------------------------------------------------ */
+
+.highlight .c,   .highlight .ch,  .highlight .cd,  .highlight .cm,
+.highlight .cp,  .highlight .cpf, .highlight .c1,  .highlight .cs {
+  color: var(--syn-comment);
+  font-style: italic;
+}
+
+.highlight .p,   .highlight .pi,  .highlight .o,   .highlight .ow,
+.highlight .w    { color: var(--syn-punct); }
+
+.highlight .k,   .highlight .kc,  .highlight .kd,  .highlight .kn,
+.highlight .kp,  .highlight .kr,  .highlight .kv  { color: var(--syn-keyword); }
+
+.highlight .s,   .highlight .sa,  .highlight .sb,  .highlight .sc,
+.highlight .dl,  .highlight .sd,  .highlight .s2,  .highlight .sh,
+.highlight .sx,  .highlight .s1,  .highlight .ss,  .highlight .sr,
+.highlight .se,  .highlight .si  { color: var(--syn-string); }
+
+.highlight .m,   .highlight .mb,  .highlight .mf,  .highlight .mh,
+.highlight .mi,  .highlight .mo,  .highlight .il  { color: var(--syn-num); }
+
+.highlight .nf,  .highlight .fm  { color: var(--syn-func); }
+
+.highlight .kt,  .highlight .no,  .highlight .nb,  .highlight .bp,
+.highlight .nl  { color: var(--syn-const); }
+
+.highlight .na,  .highlight .nv,  .highlight .vc,  .highlight .vg,
+.highlight .vi,  .highlight .vm,  .highlight .nx  { color: var(--syn-var); }
+
+.highlight .nt,  .highlight .nc,  .highlight .nn,  .highlight .ne,
+.highlight .nd,  .highlight .ni,  .highlight .py  { color: var(--syn-lang); }
+
+.highlight .err { color: var(--syn-error); }
+
+/* Generic tokens: diffs, prompts, program output. */
+.highlight .gd  { color: var(--syn-error); }
+.highlight .gi  { color: var(--syn-keyword); }
+.highlight .gh,
+.highlight .gu  { color: var(--syn-func); font-weight: 700; }
+.highlight .ge  { font-style: italic; }
+.highlight .gs  { font-weight: 700; }
+.highlight .gp  { color: var(--syn-comment); }
+.highlight .go  { color: var(--tx-2); }
+.highlight .gr,
+.highlight .gt  { color: var(--syn-error); }
+
+
+/* ---------------------------------------------------------------------------
+   09  COMPONENTS
+
+   The stream is the homepage archive: date, title, optional one-line
+   description, repeated. It has to stay scannable at forty-odd entries, so the
+   date sits in a fixed monospace rail on the left and the title carries the
+   weight. Titles are set in the body serif on purpose — this is a list of
+   things to read, not a table of contents, and the eye reads it as prose.
+   --------------------------------------------------------------------------- */
+
+.stream {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stream-item {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0 1rem;
+  padding-block: 0.55rem;
+  border-bottom: 1px solid var(--ui);
+}
+
+.stream-item:first-child { border-top: 1px solid var(--ui); }
+
+.stream-date {
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-2);
+  line-height: var(--lh-body);
+  white-space: nowrap;
+}
+
+.stream-title {
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  color: var(--tx);
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  text-decoration-thickness: 1px;
+}
+
+.stream-title:hover,
+.stream-title:focus-visible {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.stream-desc {
+  grid-column: 2;
+  margin: 0.15rem 0 0;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--tx-2);
+}
+
+.stream-item .post-tags {
+  grid-column: 2;
+  margin-top: 0.25rem;
+}
+
+.stream-empty {
+  padding-block: 0.55rem;
+  color: var(--tx-2);
+  font-style: italic;
+}
+
+@media (max-width: 34rem) {
+  .stream-item {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+    padding-block: 0.7rem;
+  }
+  .stream-desc,
+  .stream-item .post-tags { grid-column: 1; }
+}
+
+/* Small label above a list ------------------------------------------------ */
+
+.section-head {
+  margin-top: 3.5rem;
+  margin-bottom: 0.75rem;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tx-2);
+}
+
+/* Post and page metadata -------------------------------------------------- */
+
+.post-head { margin-bottom: 2.5rem; }
+.post-head h1 { margin-bottom: 0.6rem; }
+
+.page-title { margin-bottom: 2rem; }
+.page-title h1 { margin-bottom: 0.6rem; }
+
+.post-meta,
+.page-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.9rem;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-2);
+}
+
+.post-meta time,
+.page-meta time { white-space: nowrap; }
+
+.post-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  color: var(--tx-2);
+}
+
+.tag::before {
+  content: "#";
+  opacity: 0.7;
+}
+
+/* Post footer navigation -------------------------------------------------- */
+
+.post-nav {
+  margin-top: 3.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ui);
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+}
+
+.post-nav a { text-decoration: none; }
+.post-nav a:hover { text-decoration: underline; }
+
+/* Projects — one line per entry, hard cap. See CONTEXT.md. ---------------- */
+
+/* Compound selectors so these win over the generic `.prose ul` rules — a
+   projects list is normally written inside a Markdown page body. */
+.projects,
+.prose .projects {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.projects > li,
+.prose .projects > li {
+  margin-top: 0;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--ui);
+  line-height: 1.5;
+}
+
+.projects > li:first-child,
+.prose .projects > li:first-child { border-top: 1px solid var(--ui); }
+
+.projects .project-note {
+  color: var(--tx-2);
+  font-size: var(--fs-small);
+}
+
+
+/* ---------------------------------------------------------------------------
+   10  CV HOOKS
+
+   The /cv/ page is authored in phase 3; these are the class names it will use
+   and the rules that make Cmd-P — and the headless print job phase 3 adds to
+   CI — produce a clean A4. Nothing here asserts any content.
+   --------------------------------------------------------------------------- */
+
+.cv { max-width: 100%; }
+
+.cv .cv-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  color: var(--tx-2);
+}
+
+.cv .cv-section { margin-top: 2.5rem; }
+
+.cv .cv-section > h2 {
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--ui-2);
+  font-size: var(--fs-small);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cv .cv-entry {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.15rem 1rem;
+  margin-top: 1.25rem;
+}
+
+.cv .cv-when {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  padding-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+  color: var(--tx-2);
+}
+
+.cv .cv-what {
+  grid-column: 2;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+}
+
+.cv .cv-where {
+  grid-column: 2;
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--tx-2);
+}
+
+.cv .cv-detail {
+  grid-column: 2;
+  margin: 0.4rem 0 0;
+  font-size: var(--fs-small);
+  line-height: 1.55;
+}
+
+.cv .cv-detail ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+@media (max-width: 34rem) {
+  .cv .cv-entry { grid-template-columns: 1fr; }
+  .cv :is(.cv-when, .cv-what, .cv-where, .cv-detail) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+/* Utilities the CV — and anything else — can lean on. */
+.print-only { display: none; }
+
+
+/* ---------------------------------------------------------------------------
+   11  FOCUS, MOTION, FORCED COLORS
+   --------------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+/* Keep the ring on the edge of a scrollable region rather than outside it. */
+.prose pre:focus-visible,
+.table-wrap:focus-visible { outline-offset: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .site-nav a[aria-current="page"] { border-bottom-color: Highlight; }
+  .prose blockquote { border-left-color: CanvasText; }
+  :focus-visible { outline-color: Highlight; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   12  PRINT
+
+   General rules for every page, plus the CV specifics. The colour tokens are
+   deliberately restated: a headless browser may be rendering with a dark
+   `prefers-color-scheme`, and the printed page must be black on white anyway.
+   --------------------------------------------------------------------------- */
+
+@page {
+  size: A4;
+  margin: 18mm 16mm;
+}
+
+@media print {
+  :root {
+    color-scheme: light;
+
+    --bg:        #FFFFFF;
+    --bg-2:      #FFFFFF;
+    --tx:        #000000;
+    --tx-2:      #333333;
+    --ui:        #CCCCCC;
+    --ui-2:      #999999;
+    --ui-3:      #666666;
+    --accent:    #000000;
+    --accent-2:  #000000;
+    --accent-bg: transparent;
+
+    --syn-comment: #555555;
+    --syn-punct:   #333333;
+    --syn-keyword: #000000;
+    --syn-string:  #333333;
+    --syn-func:    #000000;
+    --syn-const:   #333333;
+    --syn-var:     #333333;
+    --syn-num:     #333333;
+    --syn-lang:    #000000;
+    --syn-error:   #000000;
+  }
+
+  html,
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  /* Chrome off. */
+  .skip-link,
+  .site-head,
+  .site-foot,
+  .post-nav,
+  .no-print { display: none !important; }
+
+  .print-only { display: revert; }
+
+  .site-head,
+  main,
+  .site-foot {
+    width: auto;
+    max-width: none;
+    margin: 0;
+  }
+
+  main { padding-bottom: 0; }
+
+  a { color: #000000 !important; text-decoration: none; }
+
+  /* Expand destinations a reader on paper cannot follow. Prose and CV only —
+     never navigation, and never an in-page or footnote jump. */
+  .prose a[href^="http"]::after,
+  .cv a[href^="http"]::after {
+    content: " <" attr(href) ">";
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    word-break: break-all;
+    color: #333333;
+  }
+  .prose a[href^="#"]::after,
+  .prose a.footnote::after,
+  .prose a.reversefootnote::after,
+  .cv .cv-contact a::after { content: none; }
+
+  .prose :is(h1, h2, h3, h4, h5, h6) {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .prose p,
+  .prose li { orphans: 3; widows: 3; }
+
+  .prose :is(pre, blockquote, figure, table, img) {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .prose pre {
+    background: #FFFFFF;
+    border: 1px solid #999999;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow: visible;
+  }
+
+  :not(pre) > code {
+    background: #FFFFFF;
+    border: 1px solid #CCCCCC;
+  }
+
+  .prose table { font-size: 9.5pt; }
+  .prose :is(th, td) { border-bottom: 1px solid #CCCCCC; }
+
+  .stream-item { break-inside: avoid; page-break-inside: avoid; }
+
+  /* CV: one continuous document, no entry split across a page break. */
+  .cv { font-size: 10pt; }
+  .cv .cv-section { margin-top: 1.6rem; }
+  .cv .cv-section > h2 { break-after: avoid; page-break-after: avoid; }
+  .cv .cv-entry {
+    margin-top: 0.9rem;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .cv .cv-contact { margin-bottom: 1.2rem; }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
 }

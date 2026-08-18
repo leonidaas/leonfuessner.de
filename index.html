@@ -3,15 +3,24 @@ layout: default
 nav: writing
 title: null
 ---
-<!-- The stream: one reverse-chronological list, every post. See CONTEXT.md. -->
+<!-- The stream: one reverse-chronological list, every post. See CONTEXT.md.
+     Phase 3 writes the identity block and the intro line; the markup below is
+     structure only. -->
 
-<p><strong>TODO (phase 3):</strong> intro line for the archive page.</p>
+<div class="home-intro prose">
+  <p><strong>TODO (phase 3):</strong> identity block and intro line for the archive page.</p>
+</div>
+
+<h2 class="section-head">Writing</h2>
 
 <ul class="stream">
   {%- for post in site.posts %}
   <li class="stream-item">
-    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y-%m-%d" }}</time>
-    <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    <time class="stream-date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y-%m-%d" }}</time>
+    <a class="stream-title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    {%- if post.description %}
+    <p class="stream-desc">{{ post.description | strip_newlines | strip }}</p>
+    {%- endif %}
     {%- if post.tags and post.tags.size > 0 %}
     <span class="post-tags">
       {%- for tag in post.tags %}<span class="tag">{{ tag }}</span>{% endfor -%}
@@ -19,6 +28,6 @@ title: null
     {%- endif %}
   </li>
   {%- else %}
-  <li>No posts yet.</li>
+  <li class="stream-empty">No posts yet.</li>
   {%- endfor %}
 </ul>

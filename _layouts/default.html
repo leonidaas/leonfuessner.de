@@ -1,15 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ page.lang | default: 'en' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <meta name="description" content="{{ page.description | default: site.description | strip_newlines | strip }}">
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
 
-  <!-- PHASE 2: design. Everything below is deliberately minimal. -->
+  <!-- Light/dark is prefers-color-scheme only; there is no toggle. The two
+       theme-color values are the Flexoki paper and black page backgrounds. -->
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FFFCF0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#100F0F" media="(prefers-color-scheme: dark)">
+
+  <!-- Fonts are self-hosted. There is no third-party request on this site. -->
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="{{ '/assets/fonts/source-serif-4-regular.woff2' | relative_url }}">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="{{ '/assets/fonts/jetbrains-mono-regular.woff2' | relative_url }}">
+
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
+
+  <meta property="og:type" content="{% if page.date %}article{% else %}website{% endif %}">
+  <meta property="og:site_name" content="{{ site.title }}">
+  <meta property="og:title" content="{{ page.title | default: site.title }}">
+  <meta property="og:description" content="{{ page.description | default: site.description | strip_newlines | strip }}">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
+  {%- if page.date %}
+  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+  {%- endif %}
+  <meta name="twitter:card" content="summary">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -30,13 +52,14 @@
   </main>
 
   <footer class="site-foot">
-    <p>
-      <a href="https://github.com/{{ site.github_username }}">GitHub</a>
+    <p class="site-foot-links">
       <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <a href="https://github.com/{{ site.github_username }}" rel="me">GitHub</a>
     </p>
     <p>&copy; {{ 'now' | date: "%Y" }} {{ site.author.name }}</p>
   </footer>
 
+  <!-- Optional. Nothing on this site needs JavaScript to render. -->
   <script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
 </body>
 </html>

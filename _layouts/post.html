@@ -2,11 +2,14 @@
 layout: default
 nav: writing
 ---
+{%- assign words = content | number_of_words -%}
+{%- assign minutes = words | divided_by: 220 | at_least: 1 -%}
 <article class="post">
   <header class="post-head">
     <h1>{{ page.title }}</h1>
     <p class="post-meta">
       <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%-d %B %Y" }}</time>
+      <span class="reading-time">{{ minutes }} min read</span>
       {%- if page.tags and page.tags.size > 0 %}
       <span class="post-tags">
         {%- for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor -%}
@@ -15,9 +18,11 @@ nav: writing
     </p>
   </header>
 
-  <div class="post-body">
+  <div class="post-body prose">
     {{ content }}
   </div>
 </article>
 
-<p><a href="{{ '/' | relative_url }}">&larr; All writing</a></p>
+<nav class="post-nav" aria-label="Post">
+  <a href="{{ '/' | relative_url }}">&larr; All writing</a>
+</nav>
