@@ -39,10 +39,86 @@ jobs:
         env:
           JEKYLL_ENV: production
 
-      # TODO (phase 3): generate cv.pdf from /cv/ and add it to the artifact.
-      # It is not wired up yet on purpose — a headless-Chrome/print step is the
-      # most likely thing to break this workflow, and phase 1's only acceptance
-      # criterion is a green build. The job will slot in here, before upload.
+      # cv.pdf is rendered from the built /cv/ page by headless Chrome, so the
+      # page and the PDF can never disagree — there is no separately maintained
+      # PDF (see CONTEXT.md, "CV"). The print stylesheet in assets/css/style.css
+      # §12 is what makes the output A4 and black-on-white.
+      #
+      # GUARDRAIL: this step is `continue-on-error` on purpose. A browser print
+      # step is the most likely thing in this workflow to break, and it must
+      # never be able to take the site deploy down with it. If it fails the
+      # site still ships; only the PDF is stale. The PDF is written to a temp
+      # file and only moved into _site once it is verified to be a real,
+      # non-empty PDF, so a half-written file can never be published.
+      - name: Render cv.pdf from the built /cv/ page
+        id: cv_pdf
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          # /cv/ pulls its CSS and fonts from absolute paths that already
+          # include _config.yml's `baseurl`, so file:// will not resolve them.
+          # Serve _site under that prefix over HTTP and print from there.
+          # Reading baseurl here (rather than hardcoding it) means the phase-6
+          # cutover to baseurl: "" needs no change in this workflow.
+          BASEURL="$(ruby -ryaml -e 'print(YAML.load_file("_config.yml")["baseurl"].to_s)')"
+          ROOT="$(mktemp -d)"
+          mkdir -p "${ROOT}${BASEURL}"
+          cp -r ./_site/. "${ROOT}${BASEURL}/"
+
+          python3 -m http.server 8123 --bind 127.0.0.1 --directory "$ROOT" >/dev/null 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+
+          URL="http://127.0.0.1:8123${BASEURL}/cv/"
+          for _ in $(seq 1 30); do
+            curl -fsS -o /dev/null "$URL" && break
+            sleep 1
+          done
+          curl -fsS -o /dev/null "$URL"
+
+          CHROME=""
+          for c in google-chrome google-chrome-stable chromium-browser chromium; do
+            if command -v "$c" >/dev/null 2>&1; then CHROME="$c"; break; fi
+          done
+          if [ -z "$CHROME" ]; then
+            echo "::warning::No Chrome/Chromium on the runner; cv.pdf not regenerated."
+            exit 1
+          fi
+          "$CHROME" --version
+
+          OUT="$(mktemp -d)/cv.pdf"
+          # --no-pdf-header-footer is the current spelling; the older
+          # --print-to-pdf-no-header is passed too and simply ignored by
+          # builds that no longer know it.
+          "$CHROME" \
+            --headless=new \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --hide-scrollbars \
+            --force-color-profile=srgb \
+            --run-all-compositor-stages-before-draw \
+            --virtual-time-budget=20000 \
+            --no-pdf-header-footer \
+            --print-to-pdf-no-header \
+            --print-to-pdf="$OUT" \
+            "$URL"
+
+          test -s "$OUT"
+          head -c 4 "$OUT" | grep -q '%PDF'
+          PAGES="$(python3 -c "import re,sys; d=open(sys.argv[1],'rb').read(); print(len(re.findall(rb'/Type\s*/Page[^s]', d)) or 'unknown')" "$OUT")"
+          echo "cv.pdf: $(stat -c%s "$OUT") bytes, ${PAGES} page(s)"
+          mv "$OUT" ./_site/cv.pdf
+
+      - name: Report cv.pdf status
+        if: always()
+        run: |
+          if [ -s ./_site/cv.pdf ]; then
+            echo "cv.pdf present: $(stat -c%s ./_site/cv.pdf) bytes"
+          else
+            echo "::warning::cv.pdf was NOT generated — /cv.pdf will 404. Site deploy is unaffected."
+          fi
 
       - uses: actions/upload-pages-artifact@v3
         with:
