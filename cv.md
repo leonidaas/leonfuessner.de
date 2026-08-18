@@ -186,18 +186,28 @@ description: >-
 
 <section class="cv-section" id="skills">
   <h2>Technical Skills</h2>
-  <dl>
-    <dt>Primary</dt>
-    <dd>C++ (systems, performance), Python (deep learning, simulation), ROS 2, Autoware, AWSIM</dd>
-    <dt>Simulation &amp; robotics</dt>
-    <dd>Unity3D, Unreal Engine, digital twin pipelines, real-time systems</dd>
-    <dt>Learning</dt>
-    <dd>Reverse engineering (x64dbg, Cheat Engine), x86-64 assembly, memory manipulation</dd>
-    <dt>Proficient</dt>
-    <dd>Kotlin, Java, Android, C#, Swift, SwiftUI</dd>
-    <dt>Familiar</dt>
-    <dd>JavaScript, Node.js, GraphQL, Docker, AWS, GCP, Linux</dd>
-  </dl>
+  <!-- Same label-and-rail grid as every other entry on this page, so the
+       left column stays one unbroken line from Publications to Languages. -->
+  <div class="cv-entry">
+    <div class="cv-when">Primary</div>
+    <div class="cv-detail">C++ (systems, performance), Python (deep learning, simulation), ROS 2, Autoware, AWSIM</div>
+  </div>
+  <div class="cv-entry">
+    <div class="cv-when">Simulation &amp; robotics</div>
+    <div class="cv-detail">Unity3D, Unreal Engine, digital twin pipelines, real-time systems</div>
+  </div>
+  <div class="cv-entry">
+    <div class="cv-when">Learning</div>
+    <div class="cv-detail">Reverse engineering (x64dbg, Cheat Engine), x86-64 assembly, memory manipulation</div>
+  </div>
+  <div class="cv-entry">
+    <div class="cv-when">Proficient</div>
+    <div class="cv-detail">Kotlin, Java, Android, C#, Swift, SwiftUI</div>
+  </div>
+  <div class="cv-entry">
+    <div class="cv-when">Familiar</div>
+    <div class="cv-detail">JavaScript, Node.js, GraphQL, Docker, AWS, GCP, Linux</div>
+  </div>
 </section>
 
 <section class="cv-section" id="languages">
