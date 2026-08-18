@@ -311,7 +311,12 @@ body {
 }
 
 /* Shared column. Header, main and footer sit on the same measure so the left
-   edge is one unbroken line down the page. */
+   edge is one unbroken line down the page.
+
+   `ch` resolves against the font of the element it is used on, so these three
+   elements must all inherit the body serif. Do not put `font-family` on
+   `.site-head` or `.site-foot` — put it on their children, or the columns stop
+   agreeing with each other. */
 .site-head,
 main,
 .site-foot {
@@ -405,16 +410,21 @@ main {
 
 /* Footer ------------------------------------------------------------------ */
 
+/* NB: font-family lives on the children, not on .site-foot — see the shared
+   column note in section 04. */
 .site-foot {
   padding-top: 1.5rem;
   padding-bottom: 3rem;
   border-top: 1px solid var(--ui);
-  font-family: var(--font-mono);
-  font-size: var(--fs-tiny);
   color: var(--tx-2);
 }
 
-.site-foot p { margin: 0; }
+.site-foot p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-tiny);
+  line-height: 1.6;
+}
 .site-foot p + p { margin-top: 0.6rem; }
 
 .site-foot-links {
@@ -625,9 +635,15 @@ img, svg, video {
   text-align: left;
   vertical-align: top;
   border-bottom: 1px solid var(--ui);
-  overflow-wrap: anywhere;
+  /* `break-word` keeps a word intact unless it alone cannot fit, so the column
+     minimum widths are set by the headers and stay readable on a phone. */
+  overflow-wrap: break-word;
   hyphens: auto;
 }
+
+/* Data cells can hold a long URL or identifier; those break anywhere rather
+   than widening the page. */
+.prose td { overflow-wrap: anywhere; }
 
 .prose th {
   font-family: var(--font-mono);
@@ -940,10 +956,8 @@ code, pre, samp, var {
   color: var(--tx-2);
 }
 
-.tag::before {
-  content: "#";
-  opacity: 0.7;
-}
+/* No opacity here: fading the '#' to 70% drops it to ~3.5:1, under AA. */
+.tag::before { content: "#"; }
 
 /* Post footer navigation -------------------------------------------------- */
 
@@ -999,6 +1013,7 @@ code, pre, samp, var {
 .cv .cv-contact {
   display: flex;
   flex-wrap: wrap;
+  align-items: baseline;
   gap: 0.35rem 1.25rem;
   margin: 0 0 2rem;
   padding: 0;
