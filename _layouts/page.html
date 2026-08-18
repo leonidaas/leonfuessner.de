@@ -3,7 +3,9 @@ layout: default
 ---
 <article class="page{% if page.nav == 'cv' %} cv{% endif %}">
   <header class="page-title">
-    <h1>{{ page.title }}</h1>
+    <!-- `heading` lets a page show a different h1 from its <title>/nav label.
+         The CV uses it: the tab says "CV", the document says "Leon Fuessner". -->
+    <h1>{{ page.heading | default: page.title }}</h1>
     {%- if page.updated %}
     <p class="page-meta">Last updated <time datetime="{{ page.updated | date_to_xmlschema }}">{{ page.updated | date: "%-d %B %Y" }}</time></p>
     {%- endif %}

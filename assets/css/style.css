@@ -1026,6 +1026,8 @@ code, pre, samp, var {
 .cv .cv-section { margin-top: 2.5rem; }
 
 .cv .cv-section > h2 {
+  /* The section itself carries the space; `.prose h2` would add 2.5rem on top. */
+  margin-top: 0;
   margin-bottom: 1rem;
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--ui-2);

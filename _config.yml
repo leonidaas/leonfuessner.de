@@ -5,6 +5,9 @@ description: >-
 
 author:
   name: Leon Fuessner
+  # Ported verbatim from the cv_2025 source; it is the contact address the
+  # CV already carried. Rendered on /cv/ only.
+  email: leon.fuessner@hotmail.de
 
 github_username: leonidaas
 
