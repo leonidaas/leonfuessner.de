@@ -1,0 +1,24 @@
+---
+layout: default
+nav: writing
+title: null
+---
+<!-- The stream: one reverse-chronological list, every post. See CONTEXT.md. -->
+
+<p><strong>TODO (phase 3):</strong> intro line for the archive page.</p>
+
+<ul class="stream">
+  {%- for post in site.posts %}
+  <li class="stream-item">
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y-%m-%d" }}</time>
+    <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    {%- if post.tags and post.tags.size > 0 %}
+    <span class="post-tags">
+      {%- for tag in post.tags %}<span class="tag">{{ tag }}</span>{% endfor -%}
+    </span>
+    {%- endif %}
+  </li>
+  {%- else %}
+  <li>No posts yet.</li>
+  {%- endfor %}
+</ul>

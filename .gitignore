@@ -1,0 +1,21 @@
+# Jekyll build output and caches
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+vendor/
+
+# Drafts are NEVER pushed. This repo is public; unfinished writing is not.
+# The whole directory is ignored on purpose (no negation pattern, so nothing
+# inside it can be committed by accident). See README.md → "Drafts".
+_drafts/
+
+# Obsidian workspace state (this repo is opened as a publishing vault)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# macOS
+.DS_Store
+
+# Local bundler config
+.bundle/

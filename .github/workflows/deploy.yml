@@ -1,0 +1,59 @@
+name: Build and deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Required by the official Pages deploy flow.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; don't cancel a run that is mid-deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      # NOTE: baseurl comes from _config.yml, deliberately, so that a local
+      # `bundle exec jekyll serve` and the deployed build agree. Do not let
+      # configure-pages override it here.
+      - name: Build with Jekyll
+        run: bundle exec jekyll build --trace
+        env:
+          JEKYLL_ENV: production
+
+      # TODO (phase 3): generate cv.pdf from /cv/ and add it to the artifact.
+      # It is not wired up yet on purpose — a headless-Chrome/print step is the
+      # most likely thing to break this workflow, and phase 1's only acceptance
+      # criterion is a green build. The job will slot in here, before upload.
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

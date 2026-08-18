@@ -1,0 +1,98 @@
+/* ---------------------------------------------------------------------------
+   PHASE 2 OWNS THIS FILE.
+
+   What is here is the bare minimum to keep the skeleton from looking broken:
+   a readable measure, a legible stack, and some spacing. No palette, no type
+   scale, no design decisions. Phase 2 replaces all of it with the Flexoki
+   palette, JetBrains Mono for headings/nav/metadata, and a serif body face.
+   Body text is never monospace.
+   --------------------------------------------------------------------------- */
+
+body {
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+  max-width: 42rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+.skip-link:focus {
+  position: static;
+}
+
+.site-head,
+.site-foot {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875rem;
+}
+
+.site-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+}
+
+.site-nav a {
+  margin-right: 0.75rem;
+}
+
+.site-foot {
+  margin-top: 4rem;
+}
+
+.site-foot a {
+  margin-right: 0.75rem;
+}
+
+h1,
+h2,
+h3 {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: 1.25;
+}
+
+.post-meta,
+.page-meta,
+.stream,
+.tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875rem;
+}
+
+.stream {
+  list-style: none;
+  padding: 0;
+}
+
+.stream-item {
+  margin-bottom: 0.75rem;
+}
+
+.stream-item time {
+  margin-right: 0.75rem;
+}
+
+.tag::before {
+  content: "#";
+}
+
+.tag + .tag {
+  margin-left: 0.5rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+pre {
+  overflow-x: auto;
+}

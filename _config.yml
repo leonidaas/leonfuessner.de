@@ -1,0 +1,54 @@
+title: Leon Fuessner
+description: >-
+  Writing by Leon Fuessner.
+# TODO (phase 3): replace this description with real copy.
+
+author:
+  name: Leon Fuessner
+
+github_username: leonidaas
+
+# ---------------------------------------------------------------------------
+# BASEURL — READ BEFORE CHANGING
+#
+# Until the DNS cutover (phase 6) this site is served from a GitHub Pages
+# *project page*:  https://leonidaas.github.io/leonfuessner.de/
+# A project page lives under a path prefix, so every internal link breaks
+# unless `baseurl` matches that prefix.
+#
+# >>> AT DNS CUTOVER: set `baseurl: ""` and `url: "https://leonfuessner.de"`. <<<
+# Nothing else needs to change: every internal link in this repo goes through
+# the `relative_url` filter, so those two lines fix all of them at once.
+# ---------------------------------------------------------------------------
+baseurl: "/leonfuessner.de"
+url: "https://leonidaas.github.io"
+
+# Matches the convention already used by the cv_2025 site.
+permalink: /blog/:title/
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Posts are the only content type; every post shares one stream.
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - CONTEXT.md
+  - docs
+  - vendor
+  - .jekyll-cache
+  - .obsidian
