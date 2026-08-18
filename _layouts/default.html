@@ -14,11 +14,9 @@
   <meta name="theme-color" content="#FFFCF0" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#100F0F" media="(prefers-color-scheme: dark)">
 
-  <!-- Fonts are self-hosted. There is no third-party request on this site. -->
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-        href="{{ '/assets/fonts/source-serif-4-regular.woff2' | relative_url }}">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-        href="{{ '/assets/fonts/jetbrains-mono-regular.woff2' | relative_url }}">
+  <!-- No webfonts. Type is set in the reader's own system stacks (see
+       assets/css/style.css §01), so there is nothing to preload and no
+       third-party request on this site at all. Do not add one. -->
 
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
@@ -52,9 +50,23 @@
   </main>
 
   <footer class="site-foot">
+    <!-- Social links. Every destination comes from _config.yml, so this list
+         and the /cv/ contact rail can never drift apart. There is deliberately
+         no email address here, or anywhere else on this site.
+
+         X / TWITTER: the link is deliberately absent, because the handle has
+         not been confirmed. It renders here automatically the moment
+         `twitter_username` is set in _config.yml (see the marked block
+         there). Do not hardcode a handle and do not guess one. -->
     <p class="site-foot-links">
       <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
       <a href="https://github.com/{{ site.github_username }}" rel="me">GitHub</a>
+      {%- if site.linkedin_url %}
+      <a href="{{ site.linkedin_url }}" rel="me">LinkedIn</a>
+      {%- endif %}
+      {%- if site.twitter_username %}
+      <a href="https://x.com/{{ site.twitter_username }}" rel="me">X</a>
+      {%- endif %}
     </p>
     <p>&copy; {{ 'now' | date: "%Y" }} {{ site.author.name }}</p>
   </footer>

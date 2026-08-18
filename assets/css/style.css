@@ -2,11 +2,11 @@
    leonfuessner.de — design system (phase 2)
 
    One stylesheet. Plain CSS, no build step, no framework.
-   Reading is the product: a serif body face at a ~65ch measure, monospace
-   only for headings, navigation, metadata and code.
+   Reading is the product: the reader's own system sans at a comfortable
+   measure, with monospace reserved for code and the two fixed date rails.
 
    Contents
-     01  Fonts (self-hosted, no third-party requests)
+     01  Typefaces (system stacks — no webfonts, no font files)
      02  Palette — Flexoki tokens
      03  Semantic tokens, light + dark
      04  Reset and base
@@ -20,7 +20,10 @@
      12  Print
 
    RULES THIS FILE ENFORCES
-     - Body text is never monospace.
+     - Body text is never monospace. Neither are headings, navigation or
+       metadata: monospace is for code and for tabular figures only.
+     - No webfont is loaded, ever. Nothing here may reintroduce an
+       @font-face rule or a font file.
      - Every text/background pair used here meets WCAG AA (>= 4.5:1) in both
        themes; ratios are noted next to the tokens.
      - Light/dark is `prefers-color-scheme` only. There is no toggle and no
@@ -30,77 +33,34 @@
 
 
 /* ---------------------------------------------------------------------------
-   01  FONTS
+   01  TYPEFACES
 
-   Self-hosted deliberately: the production domain is a German .de and
-   LG Muenchen I, 3 O 17493/20 (2022) held that pulling fonts from Google's CDN
-   transmits visitor IPs in breach of the GDPR. Nothing here leaves the origin.
+   There are no webfonts on this site and no font files in this repo. Type is
+   set in whatever the reader's own device already has, via two stacks — the
+   same approach stephango.com takes.
 
-   JetBrains Mono 2.304 — SIL OFL 1.1, no reserved font name.
-     https://github.com/JetBrains/JetBrainsMono (release v2.304, webfonts/)
-     Subset to Latin + Latin Extended with pyftsubset (92 KB -> 28 KB/face).
-     Licence: assets/fonts/LICENSE-JetBrainsMono-OFL.txt
+   Two reasons, and the second is not optional:
 
-   Source Serif 4.005R — SIL OFL 1.1, reserved font name 'Source'.
-     https://github.com/adobe-fonts/source-serif (release 4.005R, WOFF2/TTF/)
-     Shipped BYTE-FOR-BYTE UNMODIFIED (files renamed only). The OFL treats a
-     subset as a Modified Version, and a Modified Version may not carry the
-     reserved name — so these faces are not subset.
-     Licence: assets/fonts/LICENSE-SourceSerif4-OFL.md
+     1. Nothing to download. No @font-face, no preload, no layout shift, no
+        font-display compromise. The first paint is the final paint.
+     2. The production domain is a German .de, and LG Muenchen I,
+        3 O 17493/20 (2022) held that pulling fonts from Google's CDN
+        transmits visitor IPs in breach of the GDPR. A stack that never
+        requests a file cannot leak an IP. Self-hosting also satisfied that;
+        requesting nothing satisfies it more cheaply.
 
-   Paths are relative, so they survive the phase-6 baseurl cutover untouched.
+   The stacks are declared as --font-sans and --font-mono in section 03,
+   next to the rest of the type tokens. Resolution, in practice:
+
+     macOS / iOS      -apple-system -> SF Pro;   ui-monospace -> SF Mono
+     Windows          Segoe UI;                  Consolas / Cascadia Code
+     Android          BlinkMacSystemFont -> Roboto;  Roboto Mono
+     Linux / CI       Liberation Sans or DejaVu Sans;  DejaVu Sans Mono
+
+   That last row matters: the cv.pdf print job runs in headless Chrome on a
+   GitHub Actions ubuntu runner, so the PDF is set in whatever that image
+   ships. Section 12 is written not to depend on any particular face.
    --------------------------------------------------------------------------- */
-
-@font-face {
-  font-family: "Source Serif 4";
-  src: url("../fonts/source-serif-4-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Source Serif 4";
-  src: url("../fonts/source-serif-4-italic.woff2") format("woff2");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Source Serif 4";
-  src: url("../fonts/source-serif-4-bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Source Serif 4";
-  src: url("../fonts/source-serif-4-bolditalic.woff2") format("woff2");
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("../fonts/jetbrains-mono-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("../fonts/jetbrains-mono-italic.woff2") format("woff2");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("../fonts/jetbrains-mono-bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
 
 
 /* ---------------------------------------------------------------------------
@@ -212,26 +172,41 @@
   --syn-lang:    var(--flexoki-magenta-600); /* 5.87 */
   --syn-error:   var(--flexoki-red-600);     /* 5.61 */
 
-  /* Type */
-  --font-body: "Source Serif 4", "Iowan Old Style", Charter,
-               "Bitstream Charter", "Palatino Linotype", Palatino, Georgia,
-               "Times New Roman", serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
-               Menlo, Consolas, "Liberation Mono", monospace;
+  /* Type — system stacks only; see section 01.
+     --font-sans is content, UI and headings alike. --font-mono is code, and
+     the two fixed date rails (.stream-date, .cv-when) that need tabular
+     figures to line up. Nothing else is monospace. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "IBM Plex Sans",
+               "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", "IBM Plex Mono",
+               "Roboto Mono", "DejaVu Sans Mono", "Liberation Mono", Menlo,
+               Monaco, "Consolas", "Source Code Pro", monospace;
 
-  --fs-body:   1.125rem;   /* 18px */
-  --fs-small:  0.875rem;   /* 14px — metadata */
-  --fs-tiny:   0.8125rem;  /* 13px — nav, footer, tags */
+  /* Sizes. Retuned when the serif was dropped: a system sans has a markedly
+     larger x-height than Source Serif 4 did, so the same nominal size reads
+     bigger and needs less leading. Body went 18px -> 17px and the leading
+     1.7 -> 1.6; the small sizes went up one notch each, because a sans at
+     13px looks smaller than JetBrains Mono did at 13px. */
+  --fs-body:   1.0625rem;  /* 17px */
+  --fs-small:  0.9375rem;  /* 15px — metadata, captions, CV detail */
+  --fs-tiny:   0.875rem;   /* 14px — nav, footer, tags, date rails */
   --fs-h1:     1.75rem;
   --fs-h2:     1.375rem;
   --fs-h3:     1.125rem;
   --fs-h4:     1rem;
 
-  --lh-body:   1.7;
-  --lh-tight:  1.3;
+  --lh-body:   1.6;
+  --lh-tight:  1.25;
 
-  /* Rhythm and measure */
-  --measure:   65ch;
+  /* Rhythm and measure.
+     `ch` is the advance of "0", and a system sans sets a much wider "0" than
+     Source Serif 4 did, so the old 65ch got wider when the serif went — it
+     measured out at ~79 characters a line, past the comfortable band. 55ch
+     brings it back to ~70, and lands the column at ~589px, which is almost
+     exactly the physical width the serif at 65ch used to occupy — so the
+     page's proportions are unchanged, only its character count.
+     Measured in headless Chromium at 1280px, not estimated. */
+  --measure:   55ch;
   --gutter:    clamp(1.25rem, 5vw, 2rem);
   --space:     1.5rem;
   --radius:    3px;
@@ -289,7 +264,7 @@ body {
   margin: 0;
   background-color: var(--bg);
   color: var(--tx);
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   font-synthesis-weight: none;
@@ -297,8 +272,9 @@ body {
   overflow-wrap: break-word;
 }
 
+/* Phones: one notch down. 17px sans at a phone measure is a touch large. */
 @media (max-width: 30rem) {
-  body { font-size: 1.0625rem; }
+  body { font-size: 1rem; }
 }
 
 ::selection {
@@ -341,7 +317,7 @@ main,
   color: var(--accent);
   border: 2px solid var(--accent);
   border-radius: 0 0 var(--radius) 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
   text-decoration: none;
 }
@@ -363,7 +339,7 @@ main,
 }
 
 .site-mark {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -380,7 +356,7 @@ main,
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
 }
 
@@ -421,7 +397,7 @@ main {
 
 .site-foot p {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
   line-height: 1.6;
 }
@@ -454,10 +430,12 @@ main {
    --------------------------------------------------------------------------- */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 700;
   line-height: var(--lh-tight);
-  letter-spacing: -0.02em;
+  /* -0.02em was for JetBrains Mono, which is loose by nature. A system sans
+     is already tightly fitted; -0.01em is as far as it wants to go. */
+  letter-spacing: -0.01em;
   color: var(--tx);
   text-wrap: balance;
 }
@@ -517,15 +495,10 @@ a:hover {
 
 .prose li::marker { color: var(--tx-2); }
 
-.prose ol > li::marker {
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-}
-
 .prose :is(ul, ol) :is(ul, ol) { margin-top: 0.4rem; }
 
 .prose dt {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-small);
   font-weight: 700;
 }
@@ -548,7 +521,7 @@ a:hover {
 .prose blockquote cite,
 .prose blockquote footer {
   display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-small);
   font-style: normal;
   color: var(--tx-2);
@@ -611,7 +584,7 @@ img, svg, video {
 
 .prose figcaption {
   margin-top: 0.6rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-small);
   line-height: 1.5;
   color: var(--tx-2);
@@ -646,7 +619,7 @@ img, svg, video {
 .prose td { overflow-wrap: anywhere; }
 
 .prose th {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: var(--fs-tiny);
   letter-spacing: 0.02em;
@@ -657,7 +630,7 @@ img, svg, video {
 
 .prose caption {
   margin-bottom: 0.5rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
   color: var(--tx-2);
   text-align: left;
@@ -672,7 +645,6 @@ img, svg, video {
 /* Footnotes (kramdown output) --------------------------------------------- */
 
 .prose sup[id^="fnref"] {
-  font-family: var(--font-mono);
   font-size: 0.7em;
   line-height: 0;
 }
@@ -693,7 +665,6 @@ img, svg, video {
 
 .prose .footnotes ol { padding-left: 1.25rem; }
 .prose .footnotes li { margin-top: 0.5rem; }
-.prose .footnotes li::marker { font-family: var(--font-mono); }
 .prose .footnotes p { margin: 0; }
 .prose .footnotes p + p { margin-top: 0.5rem; }
 
@@ -749,7 +720,7 @@ code, pre, samp, var {
   border-radius: var(--radius);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.6;
   tab-size: 2;
   color: var(--tx);
@@ -938,7 +909,7 @@ code, pre, samp, var {
   align-items: baseline;
   gap: 0.35rem 0.9rem;
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
   font-variant-numeric: tabular-nums;
   color: var(--tx-2);
@@ -951,7 +922,7 @@ code, pre, samp, var {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.15rem 0.6rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
   color: var(--tx-2);
 }
@@ -965,7 +936,7 @@ code, pre, samp, var {
   margin-top: 3.5rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--ui);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
 }
 
@@ -1018,7 +989,7 @@ code, pre, samp, var {
   margin: 0 0 2rem;
   padding: 0;
   list-style: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-tiny);
   color: var(--tx-2);
 }
@@ -1057,7 +1028,7 @@ code, pre, samp, var {
 .cv .cv-what {
   grid-column: 2;
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-h4);
   font-weight: 700;
   line-height: var(--lh-tight);
