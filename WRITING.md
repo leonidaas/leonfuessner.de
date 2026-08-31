@@ -1,70 +1,67 @@
 # Writing
 
-How a post gets from a blank note in Obsidian to a URL on the site.
+How a post gets from a title in the terminal to a URL on the site.
 
-This repo **is** the publishing vault — you open this directory in Obsidian as a
-second vault and write in it directly. There is no export step and no sync
-between this and the main vault (`~/Documents/Obsidian/LeonFuessner`); nothing
-here reads from there. See [`CONTEXT.md`](CONTEXT.md) for the vocabulary and
-[`docs/adr/0001-separate-publishing-vault.md`](docs/adr/0001-separate-publishing-vault.md)
-for why.
+Two vaults. They stay two vaults.
 
-Desktop only. Obsidian Sync is not used for this vault — **git is the sync
-mechanism**.
+- **Main vault** — the private Zettelkasten (`~/Documents/Obsidian/LeonFuessner`).
+  Obsidian Sync. Never published. Nothing in this repo reads from it. There is
+  no plugin that copies notes across; rewrite is intentional.
+- **Publishing vault** — this git repo, opened in Obsidian as a second vault.
+  Git is the sync. Obsidian Sync stays **off** here.
+
+See [`CONTEXT.md`](CONTEXT.md) and
+[`docs/adr/0001-separate-publishing-vault.md`](docs/adr/0001-separate-publishing-vault.md).
+
+Desktop only.
 
 ---
 
 ## One-time setup
 
-1. **Open the vault.** Obsidian → *Open another vault* → *Open folder as vault*
-   → pick this repository's directory. Obsidian finds the committed
-   `.obsidian/` config and comes up already configured (see
-   [Vault settings](#what-obsidian-is-configured-to-do-and-why)).
+1. **Open the publishing vault.** Obsidian → *Open another vault* → *Open folder
+   as vault* → pick this repository's directory. The committed `.obsidian/`
+   config is already here. The vault name in the switcher is the folder name,
+   `leonfuessner.de`, unless you renamed it.
 
-2. **Create the drafts folder.**
+2. **Install Obsidian Git.** GUI-only, one-time — see
+   [Obsidian Git](#obsidian-git) at the bottom. Auto-commit stays **off**.
 
-   ```bash
-   mkdir _drafts
-   ```
-
-   `_drafts/` is gitignored, so a fresh clone does not have it. Obsidian is
-   configured to put every new note there, and will complain if it is missing.
-
-3. **Install Obsidian Git.** GUI-only, one-time — see
-   [Obsidian Git](#obsidian-git) at the bottom.
+`_drafts/` is optional. You do not need it for the loop below.
 
 ---
 
 ## The loop
 
-Write, commit, push. That is the whole publishing pipeline.
+`new-post` → write in the publishing vault → commit-and-sync (or `git push`).
+Unpushed is a draft. Pushed to `main` is live.
 
-### 1. Start a post
-
-Fastest path, from the repo root:
+### 1. Start a post (from anywhere)
 
 ```bash
-ruby script/new-post "Why remote supervision is harder than it looks"
+ruby /path/to/leonfuessner.de/script/new-post "Why remote supervision is harder than it looks"
 ```
 
-That slugs the title, writes `_posts/YYYY-MM-DD-slug.md` with today's date,
-empty `description` and `tags: []`, and prints the path. Open that file and
-write.
+From the repo root, `ruby script/new-post "…"` is enough. It slugs the title,
+writes `_posts/YYYY-MM-DD-slug.md` with today's date, empty `description` and
+`tags: []`, prints the path, then tries to open that file in the **publishing**
+vault via `obsidian://` — even if you are currently in the Sync vault.
 
-**Or Obsidian:** `Cmd-N` lands in `_drafts/` (that is configured, not luck).
-Name the note as the human title, insert the `post` template (*Command palette*
-→ **Templates: Insert template** → `post`), write, then rename into `_posts/`
-as `YYYY-MM-DD-slug.md` when you are ready to publish.
+If Obsidian does not switch, the script prints an `open "obsidian://…"` hint
+rather than failing. The `vault=` value is the folder name (`leonfuessner.de`);
+match whatever the vault switcher shows if you renamed it.
 
 `description` and `tags` can stay empty. The only required frontmatter is
 `title`. If you set `date`, it must match the filename.
 
 ### 2. Write
 
-Markdown, fenced code (Rouge), `$inline$` and `$$display$$` math. Internal
-links are plain paths: `[about](/about/)`, `![x](/assets/img/posts/slug/x.png)`.
-Layouts still use `relative_url`; post bodies do not need it. The DNS cutover
-is done.
+In the publishing vault. Markdown, fenced code (Rouge), `$inline$` and
+`$$display$$` math. Internal links are plain paths: `[about](/about/)`,
+`![x](/assets/img/posts/slug/x.png)`. Layouts still use `relative_url`; post
+bodies do not need it.
+
+Do not paste from the Sync vault expecting a copy plugin. Rewrite.
 
 ### 3. Optional check
 
@@ -72,17 +69,20 @@ is done.
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
 ruby script/validate-posts.rb          # frontmatter check, no bundler needed
-bundle exec jekyll serve               # add --drafts to preview _drafts/ too
+bundle exec jekyll serve
 ```
 
 <http://localhost:4000/>
 
+Math locally needs the KaTeX JS once: `ruby script/vendor-katex`. Deploy does
+this automatically. CSS is already in the repo; webfonts are stripped.
+
 ### 4. Ship it
 
-Commit and push — by hand in the terminal, or via Obsidian Git's
-*Commit-and-sync* command. Pushing to `main` runs
-`.github/workflows/deploy.yml`, which validates frontmatter, builds, renders
-`cv.pdf`, and deploys. A minute later it is live.
+Obsidian Git → *Commit-and-sync*, or `git push` from the terminal. Until you
+push, it is a draft — on disk, in git as a local commit if you committed, not
+on the internet. Pushing to `main` runs `.github/workflows/deploy.yml`
+(frontmatter, build, `cv.pdf`, deploy). A minute later it is live.
 
 The post appears in three places automatically: at its own URL, in the stream on
 `/`, and in `/feed.xml`.
@@ -112,8 +112,8 @@ The filename must be `YYYY-MM-DD-slug.md`. The only required frontmatter is
   rendered body and divides by 220. A hand-written value would be a second,
   lying source of truth, so the validator rejects the key outright.
 - **`published`, `categories`, `permalink`** — not used. One stream, one
-  permalink pattern (`/blog/:title/`), and unfinished writing lives in
-  `_drafts/` rather than behind a flag.
+  permalink pattern (`/blog/:title/`). Unfinished writing stays unpushed (or in
+  optional `_drafts/`); there is no draft flag.
 
 ### Example
 
@@ -227,7 +227,13 @@ def f(x):
 
 Math is KaTeX, self-hosted under `assets/katex/` — the live site never requests
 a CDN. `$inline$` and `$$display$$` both work. KaTeX (CSS + JS) loads only when
-a page actually contains those delimiters.
+a page actually contains those delimiters. CSS is committed with every
+`@font-face` rule stripped. `katex.min.js` is fetched from the official v0.18.4
+release at deploy time; locally, once:
+
+```bash
+ruby script/vendor-katex
+```
 
 ```markdown
 The estimate is $E = mc^2$ in the small.
@@ -245,16 +251,21 @@ around a price can be written as `USD 12` or escaped.
 
 ## Drafts
 
-`_drafts/` is gitignored — the **whole** directory, with no negation pattern, so
-nothing inside it can be committed by accident. This repo is public and
-unfinished writing should not be.
+**Unpushed is a draft.** A file in `_posts/` that has not been pushed to `main`
+is not on the internet. That is the normal unfinished state. There is no draft
+flag and no extra folder required.
 
-- A fresh clone has no `_drafts/`. Run `mkdir _drafts`.
-- **Drafts are not backed up by this repo.** They exist only on the machine they
-  were written on. That is the deliberate price of a public repo.
-- `bundle exec jekyll serve --drafts` renders them locally.
+`_drafts/` still exists as an optional, gitignored scratch space — the **whole**
+directory, with no negation pattern, so nothing inside it can be committed by
+accident. Use it if you want notes that should not even be local git history.
+You do not need it to write a post.
 
-Publishing a draft = move it to `_posts/` and give the filename a date.
+- A fresh clone has no `_drafts/`. `mkdir _drafts` only if you want that folder.
+- **Anything in `_drafts/` is not backed up by this repo.**
+- `bundle exec jekyll serve --drafts` renders it locally.
+
+Obsidian `Cmd-N` still lands in `_drafts/` if that folder exists (that is the
+committed vault config). The path this guide cares about is `script/new-post`.
 
 ---
 
@@ -318,7 +329,7 @@ settings that are load-bearing:
 | `newLinkFormat` | `absolute` | Paths are written from the vault root (`/assets/img/…`). Obsidian's *relative* mode would write `../assets/…`, which is relative to `_posts/` in the source but gets resolved against `/blog/<slug>/` in the browser — always wrong. Absolute paths are correct now that `baseurl` is empty. |
 | `attachmentFolderPath` | `assets/img/posts` | Pasted images land in the images tree instead of the vault root. |
 | `alwaysUpdateLinks` | `true` | Moving an image into its per-post subfolder rewrites the link in the post. |
-| `newFileLocation` / `newFileFolderPath` | `folder` / `_drafts` | **A safety property.** New notes default to the gitignored folder, so a half-written thought cannot land somewhere publishable by default. |
+| `newFileLocation` / `newFileFolderPath` | `folder` / `_drafts` | Only matters if you use `Cmd-N` and `_drafts/` exists. The loop uses `script/new-post`, which writes `_posts/` directly. |
 | `spellcheckLanguages` | `en-GB` | The site is English only, and the existing prose is British. |
 | `readableLineLength`, `livePreview`, `foldHeading` | on | Prose defaults rather than code defaults. |
 | `defaultViewMode` | `source` | You are editing Markdown that Jekyll will process, including Liquid tags that reading view cannot render. |
@@ -383,14 +394,13 @@ public yet — all published, within minutes, with no moment where you chose to
 publish it. Reverting does not un-publish: the commit is in a public history and
 the page was live.
 
-Drafts in `_drafts/` are gitignored and so are safe from this. Everything else
-is not. Publishing should be an act, not a timeout.
+Unpushed work is the draft. Publishing is *Commit-and-sync*, or `git push`.
 
-**The workflow:** write freely; when a post is finished, run *Obsidian Git:
-Commit-and-sync* from the command palette (`Cmd-P`), or use the **Source
-control** view in the left sidebar to review the diff, stage, commit and push.
-Or just use the terminal. Either way, the decision to publish is yours and
-explicit.
+**The workflow:** write freely in the publishing vault; when a post is finished,
+run *Obsidian Git: Commit-and-sync* from the command palette (`Cmd-P`), or use
+the **Source control** view in the left sidebar to review the diff, stage,
+commit and push. Or just use the terminal. Either way, the decision to publish
+is yours and explicit.
 
 ### Useful commands (`Cmd-P`)
 

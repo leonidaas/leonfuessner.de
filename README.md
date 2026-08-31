@@ -4,13 +4,12 @@ Personal website and writing archive. Jekyll, built and deployed by GitHub
 Actions to GitHub Pages.
 
 This repo is also a **publishing vault**: open it in Obsidian as a second vault
-and write posts directly in it. See [`CONTEXT.md`](CONTEXT.md) for the
-vocabulary and [`docs/adr/0001-separate-publishing-vault.md`](docs/adr/0001-separate-publishing-vault.md)
-for why it works that way.
+and write posts directly in it. The private Zettelkasten (Obsidian Sync) stays
+a separate vault — nothing here reads from it, and there is no copy plugin.
+See [`CONTEXT.md`](CONTEXT.md) and
+[`docs/adr/0001-separate-publishing-vault.md`](docs/adr/0001-separate-publishing-vault.md).
 
-**If you are here to write, read [`WRITING.md`](WRITING.md).** It covers the
-draft-to-live loop, the frontmatter schema, the tag set, the images convention,
-and the Obsidian Git setup.
+**If you are here to write, read [`WRITING.md`](WRITING.md).**
 
 ## Layout
 
@@ -20,18 +19,19 @@ _layouts/
   default.html              page shell + nav
   post.html                 a post
   page.html                 a standalone page
-_posts/                     published posts, one Markdown file each
-_drafts/                    unfinished writing — GITIGNORED, never pushed
+_posts/                     posts (unpushed = draft; pushed to main = live)
+_drafts/                    optional scratch — GITIGNORED, not required
 _templates/                 Obsidian post template (not published)
 index.html                  the stream (all posts, reverse chronological)  → /
 now.md                      → /now/
 about.md                    → /about/
 projects.md                 → /projects/
 cv.md                       → /cv/
-assets/css|js|img/          static assets
+assets/css|js|img/          static assets (paper.css locks parchment)
 assets/img/posts/<slug>/    images belonging to one post
-assets/katex/               self-hosted KaTeX (no CDN, no webfonts)
-script/new-post             start a post from a title
+assets/katex/               self-hosted KaTeX CSS (JS vendored at build)
+script/new-post             start a post from a title; opens in Obsidian
+script/vendor-katex         fetch katex.min.js for local math preview
 script/validate-posts.rb    frontmatter check, run by CI before the build
 .obsidian/                  committed vault config (not published)
 .github/workflows/deploy.yml  build + deploy
@@ -48,31 +48,16 @@ Full guide: [`WRITING.md`](WRITING.md). The short version:
 ruby script/new-post "Your title"
 ```
 
-That writes `_posts/YYYY-MM-DD-your-title.md`. The only required frontmatter is
-`title`. Empty `description` and `tags: []` are fine. `script/validate-posts.rb`
-runs in CI before the build — a malformed post fails the deploy rather than
-rendering wrong in silence.
+Works from any working directory. Writes `_posts/YYYY-MM-DD-your-title.md` and
+tries to open it in the publishing vault (`obsidian://`), even if you are in the
+Sync vault. The only required frontmatter is `title`. Empty `description` and
+`tags: []` are fine.
 
-`layout: post` is applied automatically, so leave it out. Reading time is
-computed from the word count, so there is no `reading_time` field.
+Unpushed = draft. Commit-and-sync (Obsidian Git) or `git push` when it should
+go live. It appears at `/blog/your-title/`, in the stream on `/`, and in
+`/feed.xml`.
 
-Commit and push (Obsidian Git plugin, or `git push`). It appears at
-`/blog/your-title/`, in the stream on `/`, and in `/feed.xml`.
-
-### Drafts
-
-`_drafts/` is gitignored — the **whole** directory, with no exception pattern,
-so nothing inside it can be committed by accident. This repo is public and
-unfinished writing should not be.
-
-Consequences worth knowing:
-
-- A fresh clone has no `_drafts/` directory. Run `mkdir _drafts` after cloning.
-- Drafts are not backed up or synced by this repo. They live only on the
-  machine you wrote them on.
-- `bundle exec jekyll serve --drafts` renders them locally.
-
-Publishing a draft = move it to `_posts/` and give the filename a date.
+`_drafts/` is optional gitignored scratch. You do not need it for this loop.
 
 ### Images
 
@@ -90,7 +75,8 @@ brew install ruby
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
 bundle install
-bundle exec jekyll serve          # add --drafts to include _drafts/
+ruby script/vendor-katex              # once, for math preview
+bundle exec jekyll serve
 ```
 
 Then open <http://localhost:4000/>.
