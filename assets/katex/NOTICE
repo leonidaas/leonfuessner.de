@@ -1,0 +1,10 @@
+KaTeX v0.18.4
+https://github.com/KaTeX/KaTeX
+MIT License — see LICENSE in this directory.
+
+Vendored so leonfuessner.de never requests a CDN at runtime (GDPR).
+Webfont files are intentionally omitted: this site has a no-@font-face rule.
+katex.min.css has had every @font-face rule stripped; glyphs fall back to
+Times New Roman / Georgia / ui-serif / the body system stack.
+
+Do not restore the KaTeX webfonts or point these files at jsDelivr / cdnjs.

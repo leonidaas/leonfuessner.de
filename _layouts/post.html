@@ -8,21 +8,37 @@ nav: writing
   <header class="post-head">
     <h1>{{ page.title }}</h1>
     <p class="post-meta">
-      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%-d %B %Y" }}</time>
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+      <span class="meta-sep" aria-hidden="true">·</span>
       <span class="reading-time">{{ minutes }} min read</span>
-      {%- if page.tags and page.tags.size > 0 %}
-      <span class="post-tags">
-        {%- for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor -%}
-      </span>
-      {%- endif %}
     </p>
   </header>
 
   <div class="post-body prose">
     {{ content }}
   </div>
+
+  {%- if page.tags and page.tags.size > 0 %}
+  <p class="post-tags post-tags-foot">
+    {%- for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor -%}
+  </p>
+  {%- endif %}
 </article>
 
+{%- if page.previous or page.next %}
+<section class="related" aria-labelledby="related-label">
+  <h2 class="section-head" id="related-label">You might also enjoy</h2>
+  <ul class="related-list">
+    {%- if page.next %}
+    <li><a href="{{ page.next.url | relative_url }}">{{ page.next.title }}</a></li>
+    {%- endif %}
+    {%- if page.previous %}
+    <li><a href="{{ page.previous.url | relative_url }}">{{ page.previous.title }}</a></li>
+    {%- endif %}
+  </ul>
+</section>
+{%- endif %}
+
 <nav class="post-nav" aria-label="Post">
-  <a href="{{ '/' | relative_url }}">&larr; All writing</a>
+  <a href="{{ '/' | relative_url }}">&larr; Writing</a>
 </nav>
