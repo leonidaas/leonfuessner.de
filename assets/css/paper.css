@@ -1,0 +1,215 @@
+/* Locked paper + stream/latest/math. Loaded after style.css so these
+   tokens win. Page background is parchment, never Flexoki cream. */
+
+:root {
+  --bg:        #F3EBDD;
+  --bg-2:      #E8DFD0;
+  --tx:        #1C1814;
+  --tx-2:      #5C534A;
+  --ui:        #E0D6C6;
+  --ui-2:      #D4C9B6;
+  --ui-3:      #C4B8A4;
+  --accent-bg: #E4DDD0;
+  --fs-body:   1.125rem;
+  --fs-h1:     1.875rem;
+  --lh-body:   1.7;
+  --measure:   42rem;
+  --gutter:    clamp(1.25rem, 5vw, 2.5rem);
+  --space:     1.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:   #1A1612;
+    --bg-2: #241F1A;
+    --tx:   #EDE6DA;
+    --tx-2: #A89F93;
+    --ui:   #2C2722;
+    --ui-2: #3A342E;
+    --ui-3: #4A433C;
+  }
+}
+
+@media (max-width: 30rem) {
+  body { font-size: 1.0625rem; }
+}
+
+.site-head {
+  padding-top: 3.5rem;
+  margin-bottom: 4rem;
+}
+
+.site-brand {
+  margin: 0;
+  font-size: var(--fs-small);
+}
+
+.site-mark { font-weight: 600; }
+
+.site-crumb {
+  font-weight: 400;
+  color: var(--tx-2);
+}
+
+.site-crumb a {
+  color: var(--tx-2);
+  text-decoration: none;
+}
+
+.site-crumb a:hover,
+.site-crumb a:focus-visible { color: var(--accent); }
+
+main { padding-bottom: 5rem; }
+
+.stream-item {
+  display: grid;
+  grid-template-columns: 5.75rem 1fr;
+  gap: 0 1.25rem;
+  align-items: baseline;
+  padding-block: 0.28rem;
+  border: 0;
+}
+
+.stream-item:first-child { border-top: 0; }
+
+.stream-date {
+  font-family: var(--font-sans);
+  font-size: var(--fs-tiny);
+  font-variant-numeric: tabular-nums;
+  color: var(--tx-2);
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.stream-title {
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--tx);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, var(--tx) 45%, transparent);
+}
+
+.stream-title:hover,
+.stream-title:focus-visible {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.stream-desc,
+.stream-item .post-tags { display: none; }
+
+.stream-empty {
+  padding-block: 0.4rem;
+  color: var(--tx-2);
+  font-style: normal;
+}
+
+@media (max-width: 34rem) {
+  .stream-item {
+    grid-template-columns: 1fr;
+    gap: 0.05rem;
+    padding-block: 0.55rem;
+  }
+}
+
+.section-head {
+  margin-top: 3.75rem;
+  margin-bottom: 1.15rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--ui);
+  font-size: var(--fs-tiny);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tx-2);
+}
+
+.section-head:first-child { margin-top: 0; }
+
+.latest { margin-bottom: 0.5rem; }
+
+.latest-title {
+  margin: 0 0 0.45rem;
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.015em;
+}
+
+.latest-title a {
+  color: var(--tx);
+  text-decoration: none;
+}
+
+.latest-title a:hover,
+.latest-title a:focus-visible { color: var(--accent); }
+
+.latest-teaser {
+  margin: 0.85rem 0 0;
+  color: var(--tx);
+}
+
+.latest-more { white-space: nowrap; }
+
+.post-head { margin-bottom: 2.25rem; }
+.post-head h1 { margin-bottom: 0.55rem; }
+
+.post-meta,
+.page-meta { gap: 0.25rem 0.45rem; }
+
+.meta-sep { color: var(--tx-2); }
+
+.post-tags-foot {
+  display: block;
+  margin-top: 2.5rem;
+  font-weight: 400;
+}
+
+.post-nav {
+  margin-top: 3rem;
+  padding-top: 1.15rem;
+}
+
+.related { margin-top: 3rem; }
+
+.related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.related-list li + li { margin-top: 0.35rem; }
+
+.related-list a {
+  color: var(--tx);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, var(--tx) 45%, transparent);
+}
+
+.related-list a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+.katex-display {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.35rem;
+  margin-block: 1.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.katex-display > .katex { white-space: nowrap; }
+
+.prose .katex-display { margin-block: 1.25rem; }
+
+@media print {
+  .related { display: none !important; }
+}

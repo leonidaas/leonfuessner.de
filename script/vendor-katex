@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Drop KaTeX 0.18.4's katex.min.js into assets/katex/ from the official
+# GitHub release tarball. The CSS is already vendored (webfonts stripped).
+# Runtime never hits a CDN. Stdlib + curl/tar only.
+#
+#     ruby script/vendor-katex
+
+require "fileutils"
+
+version = "0.18.4"
+url = "https://github.com/KaTeX/KaTeX/releases/download/v#{version}/katex.tar.gz"
+root = File.expand_path("..", __dir__)
+dest = File.join(root, "assets", "katex", "katex.min.js")
+
+dir = Dir.mktmpdir("katex-")
+begin
+  tgz = File.join(dir, "katex.tar.gz")
+  system("curl", "-fsSL", url, "-o", tgz) or abort "curl failed: #{url}"
+  system("tar", "-xzf", tgz, "-C", dir) or abort "tar failed"
+  src = File.join(dir, "katex", "katex.min.js")
+  abort "missing #{src}" unless File.size?(src)
+  FileUtils.mkdir_p(File.dirname(dest))
+  FileUtils.cp(src, dest)
+  puts dest
+ensure
+  FileUtils.remove_entry(dir) if dir && File.directory?(dir)
+end
