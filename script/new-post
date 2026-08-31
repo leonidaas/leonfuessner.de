@@ -5,15 +5,17 @@
 #
 #     ruby script/new-post Title of the post
 #
+# Works from any working directory — paths are resolved from this file.
 # Writes _posts/YYYY-MM-DD-slug.md with title + today's date, empty
-# description and tags, and prints the path. Stdlib only — same as
-# validate-posts.rb, no bundler.
+# description and tags, prints the path, then tries to open it in the
+# publishing vault via obsidian:// (so it works even if you are currently
+# in the Sync vault). Stdlib only.
 #
-# The publishing vault loop is: new-post (or Obsidian Cmd-N), write,
-# commit, push. See WRITING.md.
+# Unpushed = draft. See WRITING.md.
 
 require "date"
 require "fileutils"
+require "uri"
 
 title = ARGV.join(" ").strip
 if title.empty?
@@ -36,7 +38,8 @@ end
 
 date = Date.today
 filename = "#{date.strftime('%Y-%m-%d')}-#{slug}.md"
-posts = File.expand_path("../_posts", __dir__)
+root = File.expand_path("..", __dir__)
+posts = File.join(root, "_posts")
 FileUtils.mkdir_p(posts)
 path = File.join(posts, filename)
 
@@ -58,3 +61,15 @@ File.write(path, <<~MD)
 MD
 
 puts path
+
+# Open in the publishing vault, even if the frontmost vault is the private
+# Sync one. The vault name is this folder's name (leonfuessner.de) unless it
+# was renamed in Obsidian's vault switcher — if the URI does nothing, the
+# printed `open` line is the hint, not a failure.
+vault = File.basename(root)
+rel = "_posts/#{filename.sub(/\.md\z/, '')}"
+enc = lambda { |s| URI.encode_www_form_component(s).gsub("+", "%20") }
+uri = "obsidian://open?vault=#{enc.call(vault)}&file=#{enc.call(rel)}"
+
+opened = RUBY_PLATFORM.include?("darwin") && system("open", uri)
+warn %(open in the publishing vault: open "#{uri}") unless opened
