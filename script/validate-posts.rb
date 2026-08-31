@@ -5,10 +5,13 @@
 #
 # WHY THIS EXISTS
 # A malformed post does not crash Jekyll. It renders — wrong, and silently. A
-# missing `description` costs the post its meta description and its blurb in
-# the stream; a `date` that disagrees with the filename puts the post in the
-# wrong place in the archive; `tags: research` (a string, not a list) makes
-# `post.tags` iterate over characters. None of that fails a build. This does.
+# `date` that disagrees with the filename puts the post in the wrong place in
+# the archive; `tags: research` (a string, not a list) makes `post.tags`
+# iterate over characters. None of that fails a build. This does.
+#
+# Friction is kept low on purpose: the only required frontmatter is `title`.
+# Empty `description` and empty `tags: []` are fine. A missing `date` is fine
+# (Jekyll uses the filename). If `date` is present, it must match the filename.
 #
 # It runs in CI *before* `jekyll build` (.github/workflows/deploy.yml) and can
 # be run by hand at any time:
@@ -18,29 +21,24 @@
 # Stdlib only, on purpose: no Gemfile entry, no bundler, nothing for the
 # Actions build to install. Plain `ruby` is enough.
 #
-# An EMPTY _posts/ IS VALID. Phase 5 deletes the scaffold placeholder, and the
-# site is expected to stand with no posts at all. Do not "fix" that.
+# An EMPTY _posts/ IS VALID. The site is expected to stand with no posts at
+# all. Do not "fix" that.
 
 require "yaml"
 require "date"
 
 POSTS_DIR = File.expand_path("../_posts", __dir__)
 
-# Frontmatter keys this site actually consumes. Grounded in the templates, not
-# invented — if you add a key here, add the code that reads it first.
-#
 #   title        _layouts/post.html h1, <title>, og:title, the stream link,
-#                the feed entry title
-#   date         _layouts/post.html <time>, the stream date, og:published_time,
-#                feed ordering
-#   description  <meta name="description">, og:description, and the blurb under
-#                the title in the stream (index.html)
-#   tags         the tag chips in _layouts/post.html and in the stream
-REQUIRED = %w[title date description tags].freeze
+#                the feed entry title — the only required key
+#   date         optional; if present must match the filename date prefix
+#   description  optional; empty string is fine
+#   tags         optional; empty list is fine; if present must be a YAML list
+REQUIRED = %w[title].freeze
 
 # Known-good optional keys. Anything outside REQUIRED + OPTIONAL is a warning,
 # not an error — a typo'd key is worth flagging but not worth blocking a deploy.
-OPTIONAL = %w[layout lang image].freeze
+OPTIONAL = %w[layout lang image date description tags].freeze
 
 # reading_time is NOT a frontmatter field. _layouts/post.html computes it from
 # the word count of the rendered body. A hand-written value would be a second,
@@ -122,15 +120,15 @@ files.each do |name|
     end
   end
 
-  # description
+  # description — optional; empty string / nil is fine
   if data.key?("description")
     desc = data["description"]
-    if !desc.is_a?(String) || desc.strip.empty?
-      err(errors, name, "'description' must be a non-empty string — it is the meta description and the blurb in the stream")
+    unless desc.nil? || desc.is_a?(String)
+      err(errors, name, "'description' must be a string (empty is fine) — got #{desc.class}")
     end
   end
 
-  # date
+  # date — optional; if present it must match the filename
   if data.key?("date")
     value = data["date"]
     parsed =
@@ -151,13 +149,13 @@ files.each do |name|
     end
   end
 
-  # tags
+  # tags — optional; empty list is fine; a string is not
   if data.key?("tags")
     tags = data["tags"]
-    if !tags.is_a?(Array)
-      err(errors, name, "'tags' must be a YAML list, e.g. tags: [research, simulation] — got #{tags.class} #{tags.inspect}")
-    elsif tags.empty?
-      err(errors, name, "'tags' is empty — give the post at least one tag from the set in WRITING.md")
+    if tags.nil?
+      # tags:  with no value — treat as empty
+    elsif !tags.is_a?(Array)
+      err(errors, name, "'tags' must be a YAML list, e.g. tags: [research, simulation] or tags: [] — got #{tags.class} #{tags.inspect}")
     else
       bad = tags.reject { |t| t.is_a?(String) && t =~ TAG }
       unless bad.empty?
