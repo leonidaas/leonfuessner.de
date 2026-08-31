@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Start a post with as little friction as possible.
+#
+#     ruby script/new-post Title of the post
+#
+# Writes _posts/YYYY-MM-DD-slug.md with title + today's date, empty
+# description and tags, and prints the path. Stdlib only — same as
+# validate-posts.rb, no bundler.
+#
+# The publishing vault loop is: new-post (or Obsidian Cmd-N), write,
+# commit, push. See WRITING.md.
+
+require "date"
+require "fileutils"
+
+title = ARGV.join(" ").strip
+if title.empty?
+  warn "usage: ruby script/new-post Title of the post"
+  exit 1
+end
+
+slug = title.downcase
+begin
+  slug = slug.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "")
+rescue ArgumentError
+  # encoding already ascii-ish
+end
+slug = slug.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")
+
+if slug.empty?
+  warn "could not slugify #{title.inspect}"
+  exit 1
+end
+
+date = Date.today
+filename = "#{date.strftime('%Y-%m-%d')}-#{slug}.md"
+posts = File.expand_path("../_posts", __dir__)
+FileUtils.mkdir_p(posts)
+path = File.join(posts, filename)
+
+if File.exist?(path)
+  warn "already exists: #{path}"
+  exit 1
+end
+
+quoted = '"' + title.gsub("\\", "\\\\").gsub('"', '\\"') + '"'
+
+File.write(path, <<~MD)
+  ---
+  title: #{quoted}
+  date: #{date.strftime('%Y-%m-%d')}
+  description: ""
+  tags: []
+  ---
+
+MD
+
+puts path
