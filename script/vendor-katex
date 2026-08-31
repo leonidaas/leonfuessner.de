@@ -8,6 +8,7 @@
 #     ruby script/vendor-katex
 
 require "fileutils"
+require "tmpdir"
 
 version = "0.18.4"
 url = "https://github.com/KaTeX/KaTeX/releases/download/v#{version}/katex.tar.gz"
