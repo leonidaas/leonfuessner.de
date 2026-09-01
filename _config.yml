@@ -1,7 +1,6 @@
 title: Leon Fuessner
 description: >-
   Writing by Leon Fuessner.
-# TODO (phase 3): replace this description with real copy.
 
 author:
   name: Leon Fuessner
@@ -49,6 +48,10 @@ markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+  # Leave $...$ / $$...$$ as text. KaTeX renders them in the browser, and
+  # only on pages that contain math. The default mathjax engine would wrap
+  # them in <script type="math/tex"> and the site would need a CDN.
+  math_engine: null
 
 plugins:
   - jekyll-feed

@@ -35,6 +35,13 @@ jobs:
       - name: Validate post frontmatter
         run: ruby script/validate-posts.rb
 
+      # katex.min.js is 272KB; it is fetched from the official v0.18.4
+      # release tarball at build time so the live site self-hosts it (no CDN).
+      # CSS is already in the repo, webfonts stripped. Local preview:
+      # `ruby script/vendor-katex`.
+      - name: Vendor KaTeX JS
+        run: ruby script/vendor-katex
+
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5

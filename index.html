@@ -3,31 +3,44 @@ layout: default
 nav: writing
 title: null
 ---
-<!-- The stream: one reverse-chronological list, every post. See CONTEXT.md.
-     Phase 3 writes the identity block and the intro line; the markup below is
-     structure only. -->
+{%- comment %}
+  The stream: one reverse-chronological list, every post. See CONTEXT.md.
+  A "Latest" feature sits above it only when there is at least one post —
+  an empty Latest block would be a hole. The header name is the identity;
+  there is no biography here.
+{%- endcomment %}
+{%- if site.posts.size > 0 %}
+{%- assign latest = site.posts.first %}
+{%- assign latest_words = latest.content | number_of_words %}
+{%- assign latest_minutes = latest_words | divided_by: 220 | at_least: 1 %}
+<section class="latest" aria-labelledby="latest-label">
+  <h2 class="section-head" id="latest-label">Latest</h2>
+  <h3 class="latest-title"><a href="{{ latest.url | relative_url }}">{{ latest.title }}</a></h3>
+  <p class="post-meta">
+    <time datetime="{{ latest.date | date_to_xmlschema }}">{{ latest.date | date: "%B %-d, %Y" }}</time>
+    <span class="meta-sep" aria-hidden="true">·</span>
+    <span class="reading-time">{{ latest_minutes }} min read</span>
+  </p>
+  <p class="latest-teaser">
+    {%- if latest.description and latest.description != "" -%}
+    {{ latest.description | strip_newlines | strip }}
+    {{ " " }}
+    {%- endif -%}
+    <a class="latest-more" href="{{ latest.url | relative_url }}">Keep reading&nbsp;&rarr;</a>
+  </p>
+</section>
+{%- endif %}
 
-<div class="home-intro prose">
-  <p><strong>TODO (phase 3):</strong> identity block and intro line for the archive page.</p>
-</div>
-
-<h2 class="section-head">Writing</h2>
-
-<ul class="stream">
-  {%- for post in site.posts %}
-  <li class="stream-item">
-    <time class="stream-date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y-%m-%d" }}</time>
-    <a class="stream-title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-    {%- if post.description %}
-    <p class="stream-desc">{{ post.description | strip_newlines | strip }}</p>
-    {%- endif %}
-    {%- if post.tags and post.tags.size > 0 %}
-    <span class="post-tags">
-      {%- for tag in post.tags %}<span class="tag">{{ tag }}</span>{% endfor -%}
-    </span>
-    {%- endif %}
-  </li>
-  {%- else %}
-  <li class="stream-empty">No posts yet.</li>
-  {%- endfor %}
-</ul>
+<section class="writing-index" aria-labelledby="writing-label">
+  <h2 class="section-head" id="writing-label">Writing</h2>
+  <ul class="stream">
+    {%- for post in site.posts %}
+    <li class="stream-item">
+      <time class="stream-date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y · %m" }}</time>
+      <a class="stream-title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    </li>
+    {%- else %}
+    <li class="stream-empty">No posts yet.</li>
+    {%- endfor %}
+  </ul>
+</section>
