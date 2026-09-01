@@ -12,6 +12,17 @@ layout: default
   </header>
 
   <div class="page-body prose">
+    {%- comment %}
+      The CV sets `include:` and keeps an empty Markdown body; copy lives in
+      this file's frontmatter (`cv:`). About and Now write ordinary Markdown
+      below the frontmatter.
+    {%- endcomment %}
+    {%- if page.include %}
+    {% include {{ page.include }} %}
+    {%- endif -%}
+    {%- assign body = content | strip %}
+    {%- if body != "" %}
     {{ content }}
+    {%- endif %}
   </div>
 </article>

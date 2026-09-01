@@ -7,11 +7,6 @@ updated: 2026-08-18
 description: What Leon Fuessner is working on right now.
 ---
 
-**TODO (phase 3): write this page.**
+<!-- This page is ordinary Markdown. Rewrite in place and bump `updated:` above. -->
 
-A Now page is a dated snapshot of current work — see `CONTEXT.md`. It carries a
-last-updated stamp (the `updated:` field in this file's frontmatter) and gets
-rewritten rather than appended to.
-
-Nothing here is real content yet. Do not treat anything on this page as
-factual until phase 3 replaces it.
+I am researching how Digital Twins and Simulations can be used to improve remote operation for Automated Vehicles. I do like creating software that makes life easier, which is why I also use time to develop outside of the car bubble. 

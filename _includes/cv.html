@@ -1,0 +1,119 @@
+{%- assign cv = page.cv -%}
+<ul class="cv-contact">
+  <li>{{ cv.tagline | escape }}</li>
+  <li>{{ cv.location | escape }}</li>
+  <!-- No email address, on purpose: it is not on this site anywhere, and
+       `_config.yml` no longer carries one. Contact runs through these links.
+
+       X / TWITTER: the handle is `twitter_username` in _config.yml. The
+       entry below appears on the page and in cv.pdf the moment that key is
+       set. Never guess a handle. -->
+  <li><a href="https://github.com/{{ site.github_username }}">github.com/{{ site.github_username }}</a></li>
+  {%- if site.linkedin_url %}
+  <li><a href="{{ site.linkedin_url }}">{{ site.linkedin_url | remove: 'https://www.' | remove: 'https://' }}</a></li>
+  {%- endif %}
+  {%- if site.twitter_username %}
+  <li><a href="https://x.com/{{ site.twitter_username }}">x.com/{{ site.twitter_username }}</a></li>
+  {%- endif %}
+  <!-- Screen-only, like the PDF link: in print the rail suppresses href
+       expansion, so a bare "RSS" on paper would say nothing. -->
+  <li class="no-print"><a href="{{ '/feed.xml' | relative_url }}">RSS</a></li>
+  <li class="no-print"><a href="{{ '/cv.pdf' | relative_url }}">Download PDF</a></li>
+</ul>
+
+<section class="cv-section">
+  <h2>Summary</h2>
+  <p>{{ cv.summary | escape }}</p>
+</section>
+
+{%- if cv.publications and cv.publications.size > 0 %}
+<section class="cv-section" id="publications">
+  <h2>Publications</h2>
+  {%- for pub in cv.publications %}
+  <div class="cv-entry">
+    <div class="cv-when">{{ pub.when | escape }}</div>
+    <p class="cv-what">{{ pub.what | escape }}</p>
+    <p class="cv-where">
+      {%- for author in pub.authors -%}
+        {%- if author == pub.self -%}<strong>{{ author | escape }}</strong>{%- else -%}{{ author | escape }}{%- endif -%}
+        {%- unless forloop.last %}, {% endunless -%}
+      {%- endfor %}
+      — {{ pub.venue | escape }}
+      {%- if pub.doi %}
+      <a href="https://doi.org/{{ pub.doi }}">doi:{{ pub.doi | escape }}</a>
+      {%- endif %}
+    </p>
+    {%- if pub.summary %}
+    <div class="cv-detail">
+      <p>{{ pub.summary | escape }}</p>
+    </div>
+    {%- endif %}
+  </div>
+  {%- endfor %}
+</section>
+{%- endif %}
+
+{%- if cv.experience and cv.experience.size > 0 %}
+<section class="cv-section" id="experience">
+  <h2>Experience</h2>
+  {%- for job in cv.experience %}
+  <div class="cv-entry">
+    <div class="cv-when">{{ job.when | escape }}</div>
+    <p class="cv-what">{{ job.what | escape }}</p>
+    <p class="cv-where">{{ job.where | escape }}</p>
+    {%- if job.details %}
+    <div class="cv-detail">
+      <ul>
+        {%- for item in job.details %}
+        <li>{{ item | escape }}</li>
+        {%- endfor %}
+      </ul>
+    </div>
+    {%- endif %}
+  </div>
+  {%- endfor %}
+</section>
+{%- endif %}
+
+{%- if cv.education and cv.education.size > 0 %}
+<section class="cv-section" id="education">
+  <h2>Education</h2>
+  {%- for item in cv.education %}
+  <div class="cv-entry">
+    <div class="cv-when">{{ item.when | escape }}</div>
+    <p class="cv-what">{{ item.what | escape }}</p>
+    <p class="cv-where">{{ item.where | escape }}</p>
+  </div>
+  {%- endfor %}
+</section>
+{%- endif %}
+
+{%- if cv.selected_projects and cv.selected_projects.size > 0 %}
+<section class="cv-section" id="projects">
+  <h2>Selected Projects</h2>
+  <ul>
+    {%- for project in cv.selected_projects %}
+    <li><strong>{{ project.name | escape }}</strong> — {{ project.line | escape }}</li>
+    {%- endfor %}
+  </ul>
+</section>
+{%- endif %}
+
+{%- if cv.skills and cv.skills.size > 0 %}
+<section class="cv-section" id="skills">
+  <h2>Technical Skills</h2>
+  {%- for skill in cv.skills %}
+  <div class="cv-entry">
+    <div class="cv-when">{{ skill.label | escape }}</div>
+    <div class="cv-detail">{{ skill.items | escape }}</div>
+  </div>
+  {%- endfor %}
+</section>
+{%- endif %}
+
+{%- if cv.languages %}
+<section class="cv-section" id="languages">
+  <h2>Languages</h2>
+  <p>{{ cv.languages | escape }}</p>
+</section>
+{%- endif %}

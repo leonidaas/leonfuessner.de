@@ -12,7 +12,8 @@ author:
 # ---------------------------------------------------------------------------
 # SOCIAL LINKS
 # Rendered by the footer (_layouts/default.html) and the /cv/ contact rail
-# (cv.md). Both read these keys, so a link added here appears in both places.
+# (_includes/cv.html). Both read these keys, so a link added here appears in
+# both places.
 # ---------------------------------------------------------------------------
 github_username: leonidaas
 linkedin_url: https://www.linkedin.com/in/leon-fuessner-bab212170

@@ -333,6 +333,8 @@ settings that are load-bearing:
 | `spellcheckLanguages` | `en-GB` | The site is English only, and the existing prose is British. |
 | `readableLineLength`, `livePreview`, `foldHeading` | on | Prose defaults rather than code defaults. |
 | `defaultViewMode` | `source` | You are editing Markdown that Jekyll will process, including Liquid tags that reading view cannot render. |
+| `propertiesInDocument` | `source` | Frontmatter stays as YAML in the note, including the nested `cv:` block on `cv.md`. The Properties UI would mangle that. |
+| `showUnsupportedFiles` | `true` | So `_config.yml` (social links) is visible in the file explorer. |
 
 `core-plugins.json` enables **Templates** (pointed at `_templates/` by
 `templates.json`), plus search, outline, tag pane, properties and word count.

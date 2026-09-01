@@ -4,227 +4,146 @@ title: CV
 heading: Leon Fuessner
 nav: cv
 permalink: /cv/
+include: cv.html
 description: >-
   Curriculum vitae and publications — Leon Fuessner, researcher and software
   developer at QUT Brisbane.
----
 
-<!-- The CV is two renderings of one source: this page and the cv.pdf built
-     from it by CI (.github/workflows/deploy.yml). There is no separately
-     maintained PDF — edit this file and the PDF follows. See CONTEXT.md.
+# CV copy. Edit this note in Obsidian source mode (the YAML below). The
+# HTML lives in _includes/cv.html — do not put markup in this file.
+# This is also the source for cv.pdf (CI prints the built /cv/ page).
+#
+# Entry shape (experience / education / publications):
+#   when      left-hand date rail
+#   what      role or title
+#   where     organisation / venue
+#   details   bullet list     (experience; omit if none)
+#   summary   paragraph       (publications; omit if none)
+#   authors   list of names   (publications)
+#   self      which author to bold
+#   doi       bare DOI, no URL
+# Skills use `label` + `items` instead of when/what.
 
-     Markup uses the phase-2 hooks in assets/css/style.css §10 only:
-     .cv-contact, .cv-section, .cv-entry / .cv-when / .cv-what / .cv-where /
-     .cv-detail. The wrapping `cv` class comes from _layouts/page.html. -->
+cv:
+  tagline: Researcher · Systems Engineer · Software Developer
+  location: Brisbane, Australia
 
-<ul class="cv-contact">
-  <li>Researcher · Systems Engineer · Software Developer</li>
-  <li>Brisbane, Australia</li>
-  <!-- No email address, on purpose: it is not on this site anywhere, and
-       `_config.yml` no longer carries one. Contact runs through these links.
-
-       X / TWITTER: absent because the handle is not known yet. Set
-       `twitter_username` in _config.yml (the block is marked there) and the
-       entry below appears on the page and in cv.pdf. Never guess a handle. -->
-  <li><a href="https://github.com/{{ site.github_username }}">github.com/{{ site.github_username }}</a></li>
-  {%- if site.linkedin_url %}
-  <li><a href="{{ site.linkedin_url }}">{{ site.linkedin_url | remove: 'https://www.' | remove: 'https://' }}</a></li>
-  {%- endif %}
-  {%- if site.twitter_username %}
-  <li><a href="https://x.com/{{ site.twitter_username }}">x.com/{{ site.twitter_username }}</a></li>
-  {%- endif %}
-  <!-- Screen-only, like the PDF link: in print the rail suppresses href
-       expansion, so a bare "RSS" on paper would say nothing. -->
-  <li class="no-print"><a href="{{ '/feed.xml' | relative_url }}">RSS</a></li>
-  <li class="no-print"><a href="{{ '/cv.pdf' | relative_url }}">Download PDF</a></li>
-</ul>
-
-<section class="cv-section">
-  <h2>Summary</h2>
-  <p>
+  summary: >-
     Software engineer with 7+ years shipping code across mobile, VR/AR and
     automated driving systems — from refactoring Android apps with 100K+ users,
     to prototyping BMW's Vision Pro experiences, to building digital twins for
     self-driving vehicles. Now researching how to make remote vehicle
     supervision safe and effective.
-  </p>
-</section>
 
-<section class="cv-section" id="publications">
-  <h2>Publications</h2>
-
-  <div class="cv-entry">
-    <div class="cv-when">2025</div>
-    <p class="cv-what">Interactive Visualization of Real-World Automated Driving Data using AWSIM and VARJO-XR4</p>
-    <p class="cv-where">
-      <strong>Leon Sebastian Fuessner</strong>, Togtokhtur Batbold,
-      Ronald Schroeter, Sebastien Glaser —
-      AutomotiveUI '25 Adjunct: Adjunct Proceedings of the 17th International
-      Conference on Automotive User Interfaces and Interactive Vehicular
-      Applications. ACM, 2025, pp. 323–325.
-      <a href="https://doi.org/10.1145/3744335.3758969">doi:10.1145/3744335.3758969</a>
-    </p>
-    <div class="cv-detail">
-      <p>
+  publications:
+    - when: "2025"
+      what: >-
+        Interactive Visualization of Real-World Automated Driving Data using
+        AWSIM and VARJO-XR4
+      authors:
+        - Leon Sebastian Fuessner
+        - Togtokhtur Batbold
+        - Ronald Schroeter
+        - Sebastien Glaser
+      self: Leon Sebastian Fuessner
+      venue: >-
+        AutomotiveUI '25 Adjunct: Adjunct Proceedings of the 17th International
+        Conference on Automotive User Interfaces and Interactive Vehicular
+        Applications. ACM, 2025, pp. 323–325.
+      doi: 10.1145/3744335.3758969
+      summary: >-
         A high-fidelity interactive visualization of real-world automated
         driving data. Sensor data (LiDAR, camera, GPS) recorded on the Mount
         Cotton closed circuit near Brisbane is replayed and synchronised with a
         Unity-based simulation of the same environment, then explored in VR
         through a VARJO-XR4 headset — making edge cases inspectable, safely and
         repeatably.
-      </p>
-    </div>
-  </div>
-</section>
 
-<section class="cv-section" id="experience">
-  <h2>Experience</h2>
+  experience:
+    - when: 2025 — present
+      what: Researcher & Software Developer
+      where: Queensland University of Technology · Brisbane, Australia
+      details:
+        - Research on remote operation and digital twinning for automated vehicles
+        - Simulation pipelines with Autoware, AWSIM and ROS 2
+        - VR/AR road safety research — preventing accidents through immersive simulation
+        - Built a digital twin of real-world terrain from recorded sensor data
 
-  <div class="cv-entry">
-    <div class="cv-when">2025 — present</div>
-    <p class="cv-what">Researcher &amp; Software Developer</p>
-    <p class="cv-where">Queensland University of Technology · Brisbane, Australia</p>
-    <div class="cv-detail">
-      <ul>
-        <li>Research on remote operation and digital twinning for automated vehicles</li>
-        <li>Simulation pipelines with Autoware, AWSIM and ROS 2</li>
-        <li>VR/AR road safety research — preventing accidents through immersive simulation</li>
-        <li>Built a digital twin of real-world terrain from recorded sensor data</li>
-      </ul>
-    </div>
-  </div>
+    - when: 2023 — 2025
+      what: Software Developer
+      where: MaibornWolff GmbH · Munich, Germany
+      details:
+        - Client projects for STIHL and BMW
+        - 3D VR/AR programming and prototyping for BMW — Swift, SwiftUI, Apple Vision Pro, Unreal Engine, Meta Quest Pro
 
-  <div class="cv-entry">
-    <div class="cv-when">2023 — 2025</div>
-    <p class="cv-what">Software Developer</p>
-    <p class="cv-where">MaibornWolff GmbH · Munich, Germany</p>
-    <div class="cv-detail">
-      <ul>
-        <li>Client projects for STIHL and BMW</li>
-        <li>3D VR/AR programming and prototyping for BMW — Swift, SwiftUI, Apple Vision Pro, Unreal Engine, Meta Quest Pro</li>
-      </ul>
-    </div>
-  </div>
+    - when: 2021 — 2023
+      what: Android Developer (Freelance)
+      where: Droid-Dojo · Remote
+      details:
+        - Projects for Deutsche Bahn and Joyn
+        - Private project built entirely with Jetpack Compose
 
-  <div class="cv-entry">
-    <div class="cv-when">2021 — 2023</div>
-    <p class="cv-what">Android Developer (Freelance)</p>
-    <p class="cv-where">Droid-Dojo · Remote</p>
-    <div class="cv-detail">
-      <ul>
-        <li>Projects for Deutsche Bahn and Joyn</li>
-        <li>Private project built entirely with Jetpack Compose</li>
-      </ul>
-    </div>
-  </div>
+    - when: 2020 — 2021
+      what: Android Developer
+      where: myposter GmbH · Munich, Germany
+      details:
+        - Multi-module Android app in a two-person team
+        - Migrated from RxJava2 to Coroutines
+        - Photo book and calendar creation features; intelligent photo album service in Python
 
-  <div class="cv-entry">
-    <div class="cv-when">2020 — 2021</div>
-    <p class="cv-what">Android Developer</p>
-    <p class="cv-where">myposter GmbH · Munich, Germany</p>
-    <div class="cv-detail">
-      <ul>
-        <li>Multi-module Android app in a two-person team</li>
-        <li>Migrated from RxJava2 to Coroutines</li>
-        <li>Photo book and calendar creation features; intelligent photo album service in Python</li>
-      </ul>
-    </div>
-  </div>
+    - when: 2019 — 2020
+      what: Android Developer
+      where: Spontacts GmbH (Jochen Schweizer) · Munich, Germany
+      details:
+        - Refactored the Spontacts app (100K+ MAU) to Kotlin and GraphQL
+        - Shipped a new group feature — Java, Kotlin, GraphQL, Node.js, Firebase, MVVM
 
-  <div class="cv-entry">
-    <div class="cv-when">2019 — 2020</div>
-    <p class="cv-what">Android Developer</p>
-    <p class="cv-where">Spontacts GmbH (Jochen Schweizer) · Munich, Germany</p>
-    <div class="cv-detail">
-      <ul>
-        <li>Refactored the Spontacts app (100K+ MAU) to Kotlin and GraphQL</li>
-        <li>Shipped a new group feature — Java, Kotlin, GraphQL, Node.js, Firebase, MVVM</li>
-      </ul>
-    </div>
-  </div>
+    - when: 2017 — 2020
+      what: Software Developer — Apprenticeship
+      where: Jochen Schweizer Technology Solutions · Munich, Germany
+      details:
+        - IT Specialist in Application Development (Ausbildung)
+        - Android app for a voucher management system — Java, Kotlin, MVC, Dagger
 
-  <div class="cv-entry">
-    <div class="cv-when">2017 — 2020</div>
-    <p class="cv-what">Software Developer — Apprenticeship</p>
-    <p class="cv-where">Jochen Schweizer Technology Solutions · Munich, Germany</p>
-    <div class="cv-detail">
-      <ul>
-        <li>IT Specialist in Application Development (Ausbildung)</li>
-        <li>Android app for a voucher management system — Java, Kotlin, MVC, Dagger</li>
-      </ul>
-    </div>
-  </div>
-</section>
+  education:
+    - when: "2025"
+      what: Bachelor's Thesis in Computer Science
+      where: Queensland University of Technology
 
-<section class="cv-section" id="education">
-  <h2>Education</h2>
+    - when: 2021 — 2024
+      what: Bachelor of Science in Computer Science
+      where: Ludwig-Maximilians-Universität Munich
 
-  <div class="cv-entry">
-    <div class="cv-when">2025</div>
-    <p class="cv-what">Bachelor's Thesis in Computer Science</p>
-    <p class="cv-where">Queensland University of Technology</p>
-  </div>
+    - when: "2024"
+      what: Study Abroad Semester
+      where: Universidad de Sevilla
 
-  <div class="cv-entry">
-    <div class="cv-when">2021 — 2024</div>
-    <p class="cv-what">Bachelor of Science in Computer Science</p>
-    <p class="cv-where">Ludwig-Maximilians-Universität Munich</p>
-  </div>
+    - when: 2017 — 2020
+      what: IT Specialist in Application Development
+      where: Vocational School for Computer Science Munich
 
-  <div class="cv-entry">
-    <div class="cv-when">2024</div>
-    <p class="cv-what">Study Abroad Semester</p>
-    <p class="cv-where">Universidad de Sevilla</p>
-  </div>
+  # Shown on /cv/ only. Do not link a private repository from here.
+  selected_projects:
+    - name: Digital twin & remote operation research
+      line: simulation pipelines for automated vehicles
+    - name: Game Memory Manipulation
+      line: reverse-engineering CS2; helper tools in C++ with x64dbg and Cheat Engine
+    - name: RoboRally
+      line: board game rebuilt as online multiplayer with Java and JavaFX
+    - name: GDG Munich talk
+      line: Android Paging with GraphQL
 
-  <div class="cv-entry">
-    <div class="cv-when">2017 — 2020</div>
-    <p class="cv-what">IT Specialist in Application Development</p>
-    <p class="cv-where">Vocational School for Computer Science Munich</p>
-  </div>
-</section>
+  skills:
+    - label: Primary
+      items: C++ (systems, performance), Python (deep learning, simulation), ROS 2, Autoware, AWSIM
+    - label: Simulation & robotics
+      items: Unity3D, Unreal Engine, digital twin pipelines, real-time systems
+    - label: Learning
+      items: Reverse engineering (x64dbg, Cheat Engine), x86-64 assembly, memory manipulation
+    - label: Proficient
+      items: Kotlin, Java, Android, C#, Swift, SwiftUI
+    - label: Familiar
+      items: JavaScript, Node.js, GraphQL, Docker, AWS, GCP, Linux
 
-<section class="cv-section" id="projects">
-  <h2>Selected Projects</h2>
-  <!-- Do not link a private repository from here. The unshipped cv_2025 page
-       linked the first entry below to a private repo, which is a 404 for every
-       visitor. The entry stays; the link does not. -->
-  <ul>
-    <li><strong>Digital twin &amp; remote operation research</strong> — simulation pipelines for automated vehicles</li>
-    <li><strong>Game Memory Manipulation</strong> — reverse-engineering CS2; helper tools in C++ with x64dbg and Cheat Engine</li>
-    <li><strong>RoboRally</strong> — board game rebuilt as online multiplayer with Java and JavaFX</li>
-    <li><strong>GDG Munich talk</strong> — Android Paging with GraphQL</li>
-  </ul>
-  <p class="no-print"><a href="{{ '/projects/' | relative_url }}">More projects</a></p>
-</section>
-
-<section class="cv-section" id="skills">
-  <h2>Technical Skills</h2>
-  <!-- Same label-and-rail grid as every other entry on this page, so the
-       left column stays one unbroken line from Publications to Languages. -->
-  <div class="cv-entry">
-    <div class="cv-when">Primary</div>
-    <div class="cv-detail">C++ (systems, performance), Python (deep learning, simulation), ROS 2, Autoware, AWSIM</div>
-  </div>
-  <div class="cv-entry">
-    <div class="cv-when">Simulation &amp; robotics</div>
-    <div class="cv-detail">Unity3D, Unreal Engine, digital twin pipelines, real-time systems</div>
-  </div>
-  <div class="cv-entry">
-    <div class="cv-when">Learning</div>
-    <div class="cv-detail">Reverse engineering (x64dbg, Cheat Engine), x86-64 assembly, memory manipulation</div>
-  </div>
-  <div class="cv-entry">
-    <div class="cv-when">Proficient</div>
-    <div class="cv-detail">Kotlin, Java, Android, C#, Swift, SwiftUI</div>
-  </div>
-  <div class="cv-entry">
-    <div class="cv-when">Familiar</div>
-    <div class="cv-detail">JavaScript, Node.js, GraphQL, Docker, AWS, GCP, Linux</div>
-  </div>
-</section>
-
-<section class="cv-section" id="languages">
-  <h2>Languages</h2>
-  <p>German (native) · English (fluent) · Spanish (intermediate)</p>
-</section>
+  languages: German (native) · English (fluent) · Spanish (intermediate)
+---

@@ -6,7 +6,9 @@ permalink: /about/
 description: About Leon Fuessner.
 ---
 
-**TODO (phase 3): write this page.**
+<!-- This page is ordinary Markdown. Edit below; no HTML required. -->
 
-Placeholder only. No biographical claims have been written here — phase 3 fills
-this in from Leon's own words.
+**TODO:** write this page.
+
+Placeholder only. Nothing here is a biographical claim until it is replaced
+with your own words.

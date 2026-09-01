@@ -14,8 +14,8 @@
      06  Prose: headings, text, links, lists, quotes, rules
      07  Prose: media, tables, footnotes
      08  Code and Rouge syntax highlighting
-     09  Components: stream, post meta, tags, projects
-     10  CV hooks (content authored in phase 3)
+     09  Components: stream, post meta, tags
+     10  CV hooks (content in cv.md frontmatter, markup in _includes/cv.html)
      11  Focus, motion, forced colors
      12  Print
 
@@ -943,40 +943,13 @@ code, pre, samp, var {
 .post-nav a { text-decoration: none; }
 .post-nav a:hover { text-decoration: underline; }
 
-/* Projects — one line per entry, hard cap. See CONTEXT.md. ---------------- */
-
-/* Compound selectors so these win over the generic `.prose ul` rules — a
-   projects list is normally written inside a Markdown page body. */
-.projects,
-.prose .projects {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.projects > li,
-.prose .projects > li {
-  margin-top: 0;
-  padding-block: 0.5rem;
-  border-bottom: 1px solid var(--ui);
-  line-height: 1.5;
-}
-
-.projects > li:first-child,
-.prose .projects > li:first-child { border-top: 1px solid var(--ui); }
-
-.projects .project-note {
-  color: var(--tx-2);
-  font-size: var(--fs-small);
-}
-
 
 /* ---------------------------------------------------------------------------
    10  CV HOOKS
 
-   The /cv/ page is authored in phase 3; these are the class names it will use
-   and the rules that make Cmd-P — and the headless print job phase 3 adds to
-   CI — produce a clean A4. Nothing here asserts any content.
+   Class names used by _includes/cv.html (content lives in cv.md frontmatter).
+   These rules also make Cmd-P — and the headless print job in CI — produce
+   a clean A4. Nothing here asserts any content.
    --------------------------------------------------------------------------- */
 
 .cv { max-width: 100%; }

@@ -14,7 +14,9 @@ See [`CONTEXT.md`](CONTEXT.md) and
 ## Layout
 
 ```
-_config.yml                 site settings, plugins, and the baseurl (read the comment)
+_config.yml                 site settings, plugins, social links, baseurl
+_includes/
+  cv.html                   CV markup — do not edit to change content
 _layouts/
   default.html              page shell + nav
   post.html                 a post
@@ -25,8 +27,7 @@ _templates/                 Obsidian post template (not published)
 index.html                  the stream (all posts, reverse chronological)  → /
 now.md                      → /now/
 about.md                    → /about/
-projects.md                 → /projects/
-cv.md                       → /cv/
+cv.md                       → /cv/  (copy is the YAML frontmatter in this file)
 assets/css|js|img/          static assets (paper.css locks parchment)
 assets/img/posts/<slug>/    images belonging to one post
 assets/katex/               self-hosted KaTeX CSS (JS vendored at build)
@@ -39,6 +40,19 @@ docs/adr/                   architecture decision records
 CONTEXT.md                  glossary
 WRITING.md                  how to write and publish a post
 ```
+
+## Editing the site
+
+Everything you change is a Markdown file in this vault. Open it in Obsidian
+(source mode). Do not put HTML in a page to change copy.
+
+| What you want to change | Open in Obsidian | What to edit |
+|---|---|---|
+| A blog post | `_posts/…` | the Markdown body — see [`WRITING.md`](WRITING.md) |
+| Now | `now.md` | the Markdown body; bump `updated:` when you rewrite it |
+| About | `about.md` | the Markdown body |
+| The CV (page **and** PDF) | `cv.md` | the `cv:` YAML in the frontmatter. Copy an existing job block to add one |
+| GitHub / LinkedIn / X | `_config.yml` | those three keys. Footer and CV contact rail both read them |
 
 ## Writing a post
 

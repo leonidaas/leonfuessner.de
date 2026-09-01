@@ -27,15 +27,11 @@ A dated snapshot of what Leon is currently working on, served at `/now/`. It
 carries a last-updated stamp and is rewritten in place rather than appended to,
 so it is always a statement about the present.
 
-**projects entry**
-One line describing one project, on `/projects/`. The one-line limit is a hard
-cap, not a guideline. An entry links out only where a public destination
-already exists; a project with nothing public to point at is still just a line.
-
 **CV**
-Two renderings of one source: the `/cv/` page and the `cv.pdf` generated from
-it. There is no separately maintained PDF — if the two ever disagree, the page
-is right and the PDF is stale.
+One source (`cv.md` frontmatter, the `cv:` key), two renderings: the `/cv/`
+page and the `cv.pdf` generated from that page. There is no separately
+maintained PDF — if the two ever disagree, the page is right and the PDF is
+stale. Edit the YAML in that note, not the HTML.
 
 **stream**
 The single reverse-chronological list that every post appears in, served at `/`.
