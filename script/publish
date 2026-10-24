@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Put finished writing live.
+#
+#     ruby script/publish _posts/2026-10-24-my-post.md [more paths…]
+#
+# Drafts live on the `drafts` branch (pushed, so every machine has them;
+# never deployed). This copies the given files, as last committed on
+# `drafts`, onto `main` and pushes `main`, which deploys. A post brings its
+# image folder assets/img/posts/<slug>/ along automatically. Any other path
+# (now.md, cv.md, …) is copied as-is. Afterwards `main` is merged back into
+# `drafts` so the two do not drift.
+#
+# Run it from the `drafts` branch with your changes committed (Obsidian Git
+# commit-and-sync is enough). Stdlib only. See WRITING.md.
+
+require "fileutils"
+require "tmpdir"
+
+DRAFTS = "drafts"
+MAIN = "main"
+
+root = File.expand_path("..", __dir__)
+Dir.chdir(root)
+
+def run(*cmd, chdir: nil)
+  opts = chdir ? { chdir: chdir } : {}
+  system(*cmd, **opts) || abort("failed: #{cmd.join(' ')}")
+end
+
+def out(*cmd)
+  IO.popen(cmd, &:read).strip
+end
+
+paths = ARGV.map { |p| p.delete_prefix("./") }
+abort "usage: ruby script/publish _posts/YYYY-MM-DD-slug.md [more paths…]" if paths.empty?
+
+branch = out("git", "rev-parse", "--abbrev-ref", "HEAD")
+abort "on #{branch.inspect}; switch to #{DRAFTS} first (git switch #{DRAFTS})" unless branch == DRAFTS
+
+unless out("git", "status", "--porcelain").empty?
+  abort "uncommitted changes; commit them first (Obsidian Git: commit-and-sync)"
+end
+
+# A post's images travel with it.
+paths += paths.filter_map do |p|
+  m = p.match(%r{\A_posts/\d{4}-\d{2}-\d{2}-(.+)\.md\z})
+  dir = "assets/img/posts/#{m[1]}" if m
+  dir if dir && File.directory?(dir)
+end
+paths.uniq!
+
+paths.each do |p|
+  next if system("git", "cat-file", "-e", "HEAD:#{p}", err: File::NULL)
+  abort "#{p} is not committed on #{DRAFTS}"
+end
+
+source = out("git", "rev-parse", "HEAD")
+run "git", "fetch", "--quiet", "origin"
+
+Dir.mktmpdir("publish-") do |tmp|
+  wt = File.join(tmp, "main")
+  run "git", "worktree", "add", "--quiet", "--detach", wt, "origin/#{MAIN}"
+  begin
+    run "git", "checkout", source, "--", *paths, chdir: wt
+    if out("git", "-C", wt, "status", "--porcelain").empty?
+      puts "nothing to publish: #{MAIN} already has these files"
+    else
+      run "ruby", "script/validate-posts.rb", chdir: wt
+      titles = paths.grep(/\.md\z/).map { |p| File.basename(p, ".md") }
+      run "git", "commit", "--quiet", "-m", "Publish #{titles.join(', ')}", chdir: wt
+      run "git", "push", "--quiet", "origin", "HEAD:#{MAIN}", chdir: wt
+      puts "pushed to #{MAIN}; live in about a minute:"
+      paths.each { |p| puts "  #{p}" }
+    end
+  ensure
+    run "git", "worktree", "remove", "--force", wt
+  end
+end
+
+run "git", "fetch", "--quiet", "origin"
+run "git", "merge", "--quiet", "--no-edit", "origin/#{MAIN}"
+run "git", "push", "--quiet", "origin", DRAFTS

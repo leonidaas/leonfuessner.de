@@ -11,7 +11,7 @@
 # publishing vault via obsidian:// (so it works even if you are currently
 # in the Sync vault). Stdlib only.
 #
-# Unpushed = draft. See WRITING.md.
+# Lands on the drafts branch; script/publish puts it live. See WRITING.md.
 
 require "date"
 require "fileutils"
@@ -71,5 +71,6 @@ rel = "_posts/#{filename.sub(/\.md\z/, '')}"
 enc = lambda { |s| URI.encode_www_form_component(s).gsub("+", "%20") }
 uri = "obsidian://open?vault=#{enc.call(vault)}&file=#{enc.call(rel)}"
 
-opened = RUBY_PLATFORM.include?("darwin") && system("open", uri)
-warn %(open in the publishing vault: open "#{uri}") unless opened
+opener = RUBY_PLATFORM.include?("darwin") ? "open" : "xdg-open"
+opened = system(opener, uri, out: File::NULL, err: File::NULL)
+warn %(open in the publishing vault: #{opener} "#{uri}") unless opened

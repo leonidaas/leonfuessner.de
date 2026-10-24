@@ -21,7 +21,7 @@ _layouts/
   default.html              page shell + nav
   post.html                 a post
   page.html                 a standalone page
-_posts/                     posts (unpushed = draft; pushed to main = live)
+_posts/                     posts (on drafts branch = draft; on main = live)
 _drafts/                    optional scratch — GITIGNORED, not required
 _templates/                 Obsidian post template (not published)
 index.html                  the stream (all posts, reverse chronological)  → /
@@ -32,6 +32,7 @@ assets/css|js|img/          static assets (paper.css locks parchment)
 assets/img/posts/<slug>/    images belonging to one post
 assets/katex/               self-hosted KaTeX CSS (JS vendored at build)
 script/new-post             start a post from a title; opens in Obsidian
+script/publish              copy a finished post from drafts to main (deploys)
 script/vendor-katex         fetch katex.min.js for local math preview
 script/validate-posts.rb    frontmatter check, run by CI before the build
 .obsidian/                  committed vault config (not published)
@@ -67,9 +68,14 @@ tries to open it in the publishing vault (`obsidian://`), even if you are in the
 Sync vault. The only required frontmatter is `title`. Empty `description` and
 `tags: []` are fine.
 
-Unpushed = draft. Commit-and-sync (Obsidian Git) or `git push` when it should
-go live. It appears at `/blog/your-title/`, in the stream on `/`, and in
-`/feed.xml`.
+Write on the `drafts` branch. Commit-and-sync (Obsidian Git) syncs the draft to
+your other machines without deploying. When it should go live:
+
+```bash
+ruby script/publish _posts/YYYY-MM-DD-your-title.md
+```
+
+It appears at `/blog/your-title/`, in the stream on `/`, and in `/feed.xml`.
 
 `_drafts/` is optional gitignored scratch. You do not need it for this loop.
 

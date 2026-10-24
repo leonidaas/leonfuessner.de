@@ -27,14 +27,21 @@ Desktop only.
 2. **Install Obsidian Git.** GUI-only, one-time — see
    [Obsidian Git](#obsidian-git) at the bottom. Auto-commit stays **off**.
 
+3. **Write on the `drafts` branch.** `git switch drafts` once per clone. The
+   vault stays on that branch; you never write on `main` directly. See
+   [`docs/adr/0003-drafts-branch.md`](docs/adr/0003-drafts-branch.md).
+
 `_drafts/` is optional. You do not need it for the loop below.
 
 ---
 
 ## The loop
 
-`new-post` → write in the publishing vault → commit-and-sync (or `git push`).
-Unpushed is a draft. Pushed to `main` is live.
+`new-post` → write in the publishing vault → commit-and-sync → `script/publish`.
+
+Committed on `drafts` is a draft: synced to every machine through GitHub, never
+deployed. On `main` is live. The repo is public, so a draft on `drafts` can be
+read on GitHub by anyone who looks; it is not on the site.
 
 ### 1. Start a post (from anywhere)
 
@@ -77,12 +84,24 @@ bundle exec jekyll serve
 Math locally needs the KaTeX JS once: `ruby script/vendor-katex`. Deploy does
 this automatically. CSS is already in the repo; webfonts are stripped.
 
-### 4. Ship it
+### 4. Sync the draft
 
-Obsidian Git → *Commit-and-sync*, or `git push` from the terminal. Until you
-push, it is a draft — on disk, in git as a local commit if you committed, not
-on the internet. Pushing to `main` runs `.github/workflows/deploy.yml`
-(frontmatter, build, `cv.pdf`, deploy). A minute later it is live.
+Obsidian Git → *Commit-and-sync*. That pushes `drafts`, so the other machine
+gets it on its next pull. Nothing deploys.
+
+### 5. Ship it
+
+```bash
+ruby script/publish _posts/2026-08-18-why-remote-supervision-is-harder.md
+```
+
+Copies the post, as committed on `drafts`, onto `main` together with its
+`assets/img/posts/<slug>/` folder, validates it, and pushes `main`. That runs
+`.github/workflows/deploy.yml` (frontmatter, build, `cv.pdf`, deploy). A minute
+later it is live. The script then merges `main` back into `drafts`.
+
+Page edits (`now.md`, `about.md`, `cv.md`) ship the same way:
+`ruby script/publish now.md`.
 
 The post appears in three places automatically: at its own URL, in the stream on
 `/`, and in `/feed.xml`.
@@ -112,8 +131,8 @@ The filename must be `YYYY-MM-DD-slug.md`. The only required frontmatter is
   rendered body and divides by 220. A hand-written value would be a second,
   lying source of truth, so the validator rejects the key outright.
 - **`published`, `categories`, `permalink`** — not used. One stream, one
-  permalink pattern (`/blog/:title/`). Unfinished writing stays unpushed (or in
-  optional `_drafts/`); there is no draft flag.
+  permalink pattern (`/blog/:title/`). Unfinished writing stays on the
+  `drafts` branch; there is no draft flag.
 
 ### Example
 
@@ -251,9 +270,11 @@ around a price can be written as `USD 12` or escaped.
 
 ## Drafts
 
-**Unpushed is a draft.** A file in `_posts/` that has not been pushed to `main`
-is not on the internet. That is the normal unfinished state. There is no draft
-flag and no extra folder required.
+**On `drafts` is a draft.** A file in `_posts/` that exists on the `drafts`
+branch but not on `main` is not on the site. That is the normal unfinished
+state. There is no draft flag and no extra folder required. Because the repo is
+public, drafts are readable on GitHub — keep anything truly private in the main
+vault until it is ready to be rewritten here.
 
 `_drafts/` still exists as an optional, gitignored scratch space — the **whole**
 directory, with no negation pattern, so nothing inside it can be committed by
@@ -383,26 +404,29 @@ already push with. Nothing extra to authenticate.
 | **Auto commit-and-sync after stopping file edits** | off | See below. |
 | **Auto pull interval** | `0` — off | Nothing else writes to this repo. Pull when you actually need to. |
 | **Pull on startup** | on | Cheap, and keeps a second machine honest. |
-| **Push on commit-and-sync** | on | When you *do* commit deliberately, you meant to publish. |
+| **Push on commit-and-sync** | on | Pushes `drafts`, which is how the other machine gets your draft. Nothing deploys. |
 | **Commit message** | `post: {{date}}` or leave the default | Only used for plugin-made commits. |
 | **Disable notifications** | off | You want to see push failures. |
 
 ### Turn auto-commit off. Seriously.
 
-**This repo is public and every push deploys.** Auto-commit-and-sync means a
-timer decides when your writing goes on the internet. A half-finished paragraph,
+**This repo is public.** Pushes to `drafts` do not deploy, but they are
+readable on GitHub, and a push from a vault accidentally left on `main` does
+deploy. Auto-commit-and-sync means a timer decides when your writing goes on
+the internet. A half-finished paragraph,
 a sentence you were still arguing with, a name you had not decided to use in
 public yet — all published, within minutes, with no moment where you chose to
 publish it. Reverting does not un-publish: the commit is in a public history and
 the page was live.
 
-Unpushed work is the draft. Publishing is *Commit-and-sync*, or `git push`.
+Syncing a draft is *Commit-and-sync* on `drafts`. Publishing is
+`ruby script/publish <post>`.
 
-**The workflow:** write freely in the publishing vault; when a post is finished,
-run *Obsidian Git: Commit-and-sync* from the command palette (`Cmd-P`), or use
+**The workflow:** write freely in the publishing vault; to sync a draft, run
+*Obsidian Git: Commit-and-sync* from the command palette (`Cmd-P`), or use
 the **Source control** view in the left sidebar to review the diff, stage,
-commit and push. Or just use the terminal. Either way, the decision to publish
-is yours and explicit.
+commit and push. When a post is finished, run `script/publish`. Either way, the
+decision to publish is yours and explicit.
 
 ### Useful commands (`Cmd-P`)
 

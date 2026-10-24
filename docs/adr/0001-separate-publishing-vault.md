@@ -44,7 +44,9 @@ published post are different artefacts with different audiences.
   ever read by anything here.
 - No pipeline to build, own, or debug. The publish action is `git push`, via the
   Obsidian Git plugin.
-- **This repo is public, so drafts are gitignored rather than pushed.** Work in
+- **Superseded by [0003](0003-drafts-branch.md):** drafts now live on a pushed
+  `drafts` branch. Original text: **This repo is public, so drafts are
+  gitignored rather than pushed.** Work in
   progress lives in `_drafts/`, which is excluded from version control entirely.
   The cost is that drafts are not backed up or synced by this repo and exist
   only on the machine they were written on.
