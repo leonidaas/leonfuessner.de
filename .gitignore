@@ -5,6 +5,9 @@ _site/
 .sass-cache/
 vendor/
 
+# Fetched by script/vendor-katex (locally) and by the deploy workflow
+assets/katex/katex.min.js
+
 # Drafts are NEVER pushed. This repo is public; unfinished writing is not.
 # The whole directory is ignored on purpose (no negation pattern, so nothing
 # inside it can be committed by accident). See README.md → "Drafts".
